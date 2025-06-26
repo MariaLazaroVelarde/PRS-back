@@ -13,7 +13,7 @@ import java.util.List; // Importar las clases necesarias
 public class DailyRecordCreateRequest {
     private String organizationId;
     private String recordCode;
-    private List<String> testingPointIds; // Usar List en lugar de Array
+    private List<String> testingPointIds;
     private LocalDateTime recordDate;
     private Double level;
     private boolean acceptable;
@@ -21,5 +21,8 @@ public class DailyRecordCreateRequest {
     private String recordedByUserId;
     private String observations;
     private Double amount;
-    // private LocalDateTime nextChlorinationDate; // Puedes descomentar si es necesario
+    private LocalDateTime createdAt;
+    private LocalDateTime deletedAt; // ✅ AGREGADO
+    // private LocalDateTime nextChlorinationDate; // Puedes descomentar si es
+    // necesario
 }

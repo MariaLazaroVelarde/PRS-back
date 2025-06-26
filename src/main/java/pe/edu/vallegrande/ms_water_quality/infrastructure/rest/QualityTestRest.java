@@ -25,7 +25,11 @@ public class QualityTestRest {
     public Mono<ResponseDto<List<QualityTest>>> getAll() {
         return service.getAll()
                 .collectList()
-                .map(list -> new ResponseDto<>(true, list));
+                .map(list -> new ResponseDto<>(true, list))
+                .onErrorResume(e -> Mono.just(
+                        new ResponseDto<>(false,
+                                new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                                        "Failed to retrieve quality tests", e.getMessage()))));
     }
 
     @GetMapping("/{id}")
@@ -60,7 +64,6 @@ public class QualityTestRest {
                                         "Update failed", e.getMessage()))));
     }
 
-
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<ResponseDto<Object>> delete(@PathVariable String id) {
@@ -69,6 +72,27 @@ public class QualityTestRest {
                 .onErrorResume(e -> Mono.just(
                         new ResponseDto<>(false,
                                 new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
-                                        "Delete failed", e.getMessage()))));
+                                        "Logical delete failed", e.getMessage()))));
+    }
+
+    @DeleteMapping("/{id}/physical")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<ResponseDto<Object>> deletePhysically(@PathVariable String id) {
+        return service.deletePhysically(id)
+                .thenReturn(new ResponseDto<>(true, null))
+                .onErrorResume(e -> Mono.just(
+                        new ResponseDto<>(false,
+                                new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                                        "Physical delete failed", e.getMessage()))));
+    }
+
+    @PutMapping("/{id}/restore")
+    public Mono<ResponseDto<QualityTest>> restore(@PathVariable String id) {
+        return service.restore(id)
+                .map(restored -> new ResponseDto<>(true, restored))
+                .onErrorResume(e -> Mono.just(
+                        new ResponseDto<>(false,
+                                new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                                        "Restore failed", e.getMessage()))));
     }
 }

@@ -7,8 +7,17 @@ import reactor.core.publisher.Mono;
 
 public interface DailyRecordService {
     Flux<DailyRecord> getAll();
+
     Mono<DailyRecord> getById(String id);
+
     Mono<DailyRecord> save(DailyRecordCreateRequest request);
+
     Mono<DailyRecord> update(String id, DailyRecordCreateRequest request);
+
     Mono<Void> delete(String id);
+
+    Mono<Void> deletePhysically(String id);
+
+    Mono<DailyRecord> restore(String id);
+
 }

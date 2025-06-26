@@ -8,9 +8,16 @@ import reactor.core.publisher.Mono;
 
 public interface QualityTestService {
     Flux<QualityTest> getAll();
+
     Mono<QualityTest> getById(String id);
+
     Mono<QualityTest> save(QualityTestCreateRequest request);
+
     Mono<QualityTest> update(String id, QualityTestCreateRequest request);
 
     Mono<Void> delete(String id);
+
+    Mono<Void> deletePhysically(String id);
+
+    Mono<QualityTest> restore(String id); // <- Este podría estar faltando
 }

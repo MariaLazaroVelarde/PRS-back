@@ -13,22 +13,25 @@ import java.util.List;
 @AllArgsConstructor
 public class QualityTestCreateRequest {
 
-    private String organizationId;
+private String organizationId;
     private String testCode;
     private String testingPointId;
     private LocalDateTime testDate;
-    private String testType; // RUTINARIO, ESPECIAL, INCIDENCIA
+    private String testType;
     private String testedByUserId;
     private String weatherConditions;
     private Double waterTemperature;
     private String generalObservations;
-    private String status; // COMPLETED
-    private List<ResultItem> results;
+    private String status;
+    private List<TestResult> results;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime deletedAt; // ✅ AGREGADO
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ResultItem {
+    public static class TestResult {
         private String parameterId;
         private String parameterCode;
         private Double measuredValue;

@@ -89,6 +89,32 @@ public class DailyRecordServiceImpl implements DailyRecordService {
                             .doOnSuccess(updatedRecord -> log.info("Record updated: {}", updatedRecord));
                 });
     }
+@Override
+public Mono<Void> deletePhysically(String id) {
+    return repository.findById(id)
+            .switchIfEmpty(Mono.error(new CustomException(
+                    HttpStatus.NOT_FOUND.value(),
+                    "Record not found",
+                    "The daily record with id " + id + " was not found")))
+            .flatMap(repository::delete)
+            .doOnSuccess(aVoid -> log.info("Record physically deleted: {}", id));
+}
+
+@Override
+public Mono<DailyRecord> restore(String id) {
+    return repository.findById(id)
+            .switchIfEmpty(Mono.error(new CustomException(
+                    HttpStatus.NOT_FOUND.value(),
+                    "Record not found",
+                    "The daily record with id " + id + " was not found")))
+            .flatMap(existing -> {
+                // Aquí debes implementar la lógica de restauración del registro
+                // Por ejemplo, puedes eliminar la marca de eliminación lógica
+                existing.setDeletedAt(null);
+                return repository.save(existing)
+                        .doOnSuccess(restoredRecord -> log.info("Record restored: {}", restoredRecord));
+            });
+}
 
     @Override
     public Mono<Void> delete(String id) {

@@ -20,7 +20,7 @@ public class DailyRecord {
 
     private String organizationId;
     private String recordCode;
-    private List<String> testingPointIds; // Cambiado de Array a List<String>
+    private List<String> testingPointIds;
     private LocalDateTime recordDate;
     private Double level;
     private boolean acceptable;
@@ -28,6 +28,7 @@ public class DailyRecord {
     private String recordedByUserId;
     private String observations;
     private Double amount;
-    // private LocalDateTime nextChlorinationDate;
     private LocalDateTime createdAt;
+    private LocalDateTime deletedAt; // ✅ AGREGADO
+    // private LocalDateTime nextChlorinationDate;
 }
