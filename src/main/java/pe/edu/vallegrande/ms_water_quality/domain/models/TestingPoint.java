@@ -28,7 +28,7 @@ public class TestingPoint {
     private String pointName;
 
     @Field("point_type")
-    private String pointType; // RESERVORIO, RED_DISTRIBUCION, DOMICILIO
+    private String pointType; // Ej: RESERVORIO, RED_DISTRIBUCION, DOMICILIO
 
     @Field("zone_id")
     private String zoneId;
@@ -41,7 +41,10 @@ public class TestingPoint {
     private String status = "ACTIVE";
 
     @Field("created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
+
+    @Field("updated_at")
+    private LocalDateTime updatedAt;
 
     // Clase interna para coordenadas
     @Data

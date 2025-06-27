@@ -5,14 +5,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List; // Importar las clases necesarias
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class DailyRecordCreateRequest {
+
     private String organizationId;
-    private String recordCode;
+    private String recordCode; // Puede ser opcional si se genera automáticamente
     private List<String> testingPointIds;
     private LocalDateTime recordDate;
     private Double level;
@@ -21,8 +22,7 @@ public class DailyRecordCreateRequest {
     private String recordedByUserId;
     private String observations;
     private Double amount;
-    private LocalDateTime createdAt;
-    private LocalDateTime deletedAt; // ✅ AGREGADO
-    // private LocalDateTime nextChlorinationDate; // Puedes descomentar si es
-    // necesario
+    private String recordType; // "CLORO" o "SULFATO"
 }
+
+    // private LocalDateTime nextChlorinationDate;

@@ -25,9 +25,6 @@ private String organizationId;
     private String status;
     private List<TestResult> results;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime deletedAt; // ✅ AGREGADO
-
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

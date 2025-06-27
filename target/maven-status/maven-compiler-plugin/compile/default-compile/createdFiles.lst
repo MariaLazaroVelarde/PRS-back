@@ -4,7 +4,6 @@ pe/edu/vallegrande/ms_water_quality/infrastructure/dto/ErrorMessage.class
 pe/edu/vallegrande/ms_water_quality/application/services/QualityIncidentService.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/rest/QualityParameterRest.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/QualityParameterResponse.class
-pe/edu/vallegrande/ms_water_quality/infrastructure/dto/request/QualityTestCreateRequest$ResultItem.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/QualityIncidentResponse.class
 pe/edu/vallegrande/ms_water_quality/application/services/QualityTestService.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/rest/DailyRecordRest.class
@@ -23,6 +22,7 @@ pe/edu/vallegrande/ms_water_quality/application/services/impl/DailyRecordService
 pe/edu/vallegrande/ms_water_quality/application/services/impl/QualityTestServiceImpl.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/exception/CustomException.class
 pe/edu/vallegrande/ms_water_quality/application/services/TestingPointService.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/DailyRecordResponse.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/dto/request/QualityIncidentCreateRequest.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/repository/TestingPointRepository.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/repository/UserRepository.class
@@ -30,8 +30,8 @@ pe/edu/vallegrande/ms_water_quality/infrastructure/dto/request/TestingPointCreat
 pe/edu/vallegrande/ms_water_quality/domain/models/QualityTest.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/repository/DailyRecordRepository.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/QualityTestResponse.class
-pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/ChlorineRecordResponse.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/dto/ResponseDto.class
+pe/edu/vallegrande/ms_water_quality/infrastructure/dto/request/QualityTestCreateRequest$TestResult.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/dto/request/UserCreateRequest.class
 pe/edu/vallegrande/ms_water_quality/application/services/impl/TestingPointServiceImpl.class
 pe/edu/vallegrande/ms_water_quality/infrastructure/repository/QualityParameterRepository.class

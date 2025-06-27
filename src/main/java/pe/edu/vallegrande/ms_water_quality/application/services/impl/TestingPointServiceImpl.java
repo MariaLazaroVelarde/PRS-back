@@ -48,46 +48,56 @@ public class TestingPointServiceImpl implements TestingPointService {
                         "The requested point with id " + id + " was not found")));
     }
 
-   @Override
-public Mono<TestingPointResponse> save(TestingPointCreateRequest request) {
-    TestingPoint point = new TestingPoint();
-    point.setOrganizationId(request.getOrganizationId());
-    point.setPointCode(request.getPointCode());
-    point.setPointName(request.getPointName());
-    point.setPointType(request.getPointType());
-    point.setZoneId(request.getZoneId());
-    point.setLocationDescription(request.getLocationDescription());
-    point.setCoordinates(new TestingPoint.Coordinates(
-    request.getCoordinates().getLatitude(),
-    request.getCoordinates().getLongitude()
-));
+    @Override
+    public Mono<TestingPointResponse> save(TestingPointCreateRequest request) {
+        if (request == null || request.getOrganizationId() == null || request.getPointName() == null) {
+            return Mono.error(new CustomException(
+                    HttpStatus.BAD_REQUEST.value(),
+                    "Invalid request",
+                    "Organization ID and Point Name are required."));
+        }
 
-    point.setStatus(Constants.ACTIVE.name());
-    point.setCreatedAt(LocalDateTime.now());
+        return generateNextCode()
+                .flatMap(nextCode -> {
+                    log.info("Generated next point code: {}", nextCode); // ✅ Verificación
+                    TestingPoint point = new TestingPoint();
+                    point.setOrganizationId(request.getOrganizationId());
+                    point.setPointCode(nextCode); // ✅ Ahora se asigna correctamente
+                    point.setPointName(request.getPointName());
+                    point.setPointType(request.getPointType());
+                    point.setZoneId(request.getZoneId());
+                    point.setLocationDescription(request.getLocationDescription());
+                    point.setCoordinates(new TestingPoint.Coordinates(
+                            request.getCoordinates().getLatitude(),
+                            request.getCoordinates().getLongitude()));
+                    point.setStatus(Constants.ACTIVE.name());
+                    point.setCreatedAt(LocalDateTime.now());
+                    point.setUpdatedAt(LocalDateTime.now());
 
-    return repository.save(point)
-            .map(saved -> {
-                TestingPointResponse response = new TestingPointResponse();
-                response.setId(saved.getId());
-                response.setOrganizationId(saved.getOrganizationId());
-                response.setPointCode(saved.getPointCode());
-                response.setPointName(saved.getPointName());
-                response.setPointType(saved.getPointType());
-                response.setZoneId(saved.getZoneId());
-                response.setLocationDescription(saved.getLocationDescription());
+                    return repository.save(point)
+                            .doOnSuccess(saved -> log.info("Testing Point saved: {}", saved))
+                            .map(saved -> {
+                                TestingPointResponse response = new TestingPointResponse();
+                                response.setId(saved.getId());
+                                response.setOrganizationId(saved.getOrganizationId());
+                                response.setPointCode(saved.getPointCode());
+                                response.setPointName(saved.getPointName());
+                                response.setPointType(saved.getPointType());
+                                response.setZoneId(saved.getZoneId());
+                                response.setLocationDescription(saved.getLocationDescription());
 
-                if (saved.getCoordinates() != null) {
-                    response.setCoordinates(new TestingPointResponse.Coordinates(
-                            saved.getCoordinates().getLatitude(),
-                            saved.getCoordinates().getLongitude()
-                    ));
-                }
+                                if (saved.getCoordinates() != null) {
+                                    response.setCoordinates(new TestingPointResponse.Coordinates(
+                                            saved.getCoordinates().getLatitude(),
+                                            saved.getCoordinates().getLongitude()));
+                                }
 
-                response.setStatus(saved.getStatus());
-                response.setCreatedAt(saved.getCreatedAt());
-                return response;
-            });
-}
+                                response.setStatus(saved.getStatus());
+                                response.setCreatedAt(saved.getCreatedAt());
+                                return response;
+                            });
+                });
+    }
 
     @Override
     public Mono<TestingPoint> update(String id, TestingPoint updatedPoint) {
@@ -103,7 +113,7 @@ public Mono<TestingPointResponse> save(TestingPointCreateRequest request) {
                     existing.setZoneId(updatedPoint.getZoneId());
                     existing.setLocationDescription(updatedPoint.getLocationDescription());
                     existing.setCoordinates(updatedPoint.getCoordinates());
-                    existing.setCreatedAt(LocalDateTime.now());//SALE ERROR setUpdatedAt
+                    existing.setUpdatedAt(LocalDateTime.now());
                     return repository.save(existing);
                 });
     }
@@ -136,8 +146,25 @@ public Mono<TestingPointResponse> save(TestingPointCreateRequest request) {
                         "Cannot change status of non-existent point with id " + id)))
                 .flatMap(point -> {
                     point.setStatus(status);
-                    point.setCreatedAt(LocalDateTime.now()); //SALE ERROR EN setUpdatedAt
+                    point.setUpdatedAt(LocalDateTime.now());
                     return repository.save(point);
                 });
+    }
+
+    private Mono<String> generateNextCode() {
+        return repository.findAll()
+                .filter(p -> p.getPointCode() != null && !p.getPointCode().isBlank() && p.getPointCode().startsWith("PM"))
+                .sort((p1, p2) -> p2.getPointCode().compareTo(p1.getPointCode()))
+                .next()
+                .map(last -> {
+                    try {
+                        String lastCode = last.getPointCode(); // Ejemplo: "PM007"
+                        int number = Integer.parseInt(lastCode.replace("PM", ""));
+                        return String.format("PM%03d", number + 1);
+                    } catch (Exception e) {
+                        return "PM001";
+                    }
+                })
+                .defaultIfEmpty("PM001");
     }
 }

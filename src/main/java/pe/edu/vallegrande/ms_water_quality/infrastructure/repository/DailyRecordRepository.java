@@ -7,5 +7,9 @@ import reactor.core.publisher.Flux;
 
 @Repository
 public interface DailyRecordRepository extends ReactiveMongoRepository<DailyRecord, String> {
+
     Flux<DailyRecord> findAllByOrganizationId(String organizationId);
+
+    Flux<DailyRecord> findByRecordTypeOrderByRecordCodeDesc(String recordType);
+
 }

@@ -27,7 +27,7 @@
 /workspaces/MS-Calidad-Agua-back/src/main/java/pe/edu/vallegrande/ms_water_quality/infrastructure/dto/request/QualityTestCreateRequest.java
 /workspaces/MS-Calidad-Agua-back/src/main/java/pe/edu/vallegrande/ms_water_quality/infrastructure/dto/request/TestingPointCreateRequest.java
 /workspaces/MS-Calidad-Agua-back/src/main/java/pe/edu/vallegrande/ms_water_quality/infrastructure/dto/request/UserCreateRequest.java
-/workspaces/MS-Calidad-Agua-back/src/main/java/pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/ChlorineRecordResponse.java
+/workspaces/MS-Calidad-Agua-back/src/main/java/pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/DailyRecordResponse.java
 /workspaces/MS-Calidad-Agua-back/src/main/java/pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/QualityIncidentResponse.java
 /workspaces/MS-Calidad-Agua-back/src/main/java/pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/QualityParameterResponse.java
 /workspaces/MS-Calidad-Agua-back/src/main/java/pe/edu/vallegrande/ms_water_quality/infrastructure/dto/response/QualityTestResponse.java

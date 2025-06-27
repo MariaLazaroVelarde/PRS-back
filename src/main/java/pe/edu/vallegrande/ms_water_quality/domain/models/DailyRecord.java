@@ -7,7 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.List; // Para usar listas dinámicas
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -28,7 +28,10 @@ public class DailyRecord {
     private String recordedByUserId;
     private String observations;
     private Double amount;
+    private String recordType; // "CLORO" o "SULFATO"
     private LocalDateTime createdAt;
-    private LocalDateTime deletedAt; // ✅ AGREGADO
-    // private LocalDateTime nextChlorinationDate;
+    private LocalDateTime deletedAt;
 }
+
+    // private LocalDateTime nextChlorinationDate;
+
