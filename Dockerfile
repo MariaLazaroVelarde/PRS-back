@@ -12,8 +12,8 @@ COPY --from=builder /app/target/*.jar app.jar
 ENV DATABASE_URL="mongodb+srv://sistemajass:<db_password>@sistemajass.jn6cpoz.mongodb.net/?retryWrites=true&w=majority&appName=SistemaJass"
 ENV DATABASE_USERNAME="sistemajass"
 ENV DATABASE_PASSWORD="ZC7O1Ok40SwkfEje"
-ENV PORT=8080
+ENV PORT=8087
 
-EXPOSE 8080
+EXPOSE 8087
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

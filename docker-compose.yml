@@ -2,11 +2,11 @@ version: "3.9"
 
 services:
   copichat:
-    image: marianayeli/backend:v1
+    image: marianayeli/vg-ms-water-quality:v1
     ports:
-      - "8080:8080"
+      - "8087:8087"
     environment:
       - DATABASE_URL=mongodb+srv://sistemajass:<db_password>@sistemajass.jn6cpoz.mongodb.net/?retryWrites=true&w=majority&appName=SistemaJass
       - DATABASE_USERNAME=sistemajass
       - DATABASE_PASSWORD=ZC7O1Ok40SwkfEje
-      - PORT=8080
+      - PORT=8087
