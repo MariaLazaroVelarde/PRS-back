@@ -25,7 +25,7 @@ public class QualityTestServiceImpl implements QualityTestService {
 
     @Override
     public Flux<QualityTest> getAll() {
-        return qualityTestRepository.findAll();//listar
+        return qualityTestRepository.findAll();// listar
     }
 
     @Override
@@ -34,8 +34,7 @@ public class QualityTestServiceImpl implements QualityTestService {
                 .switchIfEmpty(Mono.error(new CustomException(
                         HttpStatus.NOT_FOUND.value(),
                         "Quality test not found",
-                        "No quality test found with id " + id
-                )));
+                        "No quality test found with id " + id)));
     }
 
     @Override
@@ -81,33 +80,33 @@ public class QualityTestServiceImpl implements QualityTestService {
                         HttpStatus.NOT_FOUND.value(),
                         "Quality test not found",
                         "No quality test found with id " + id)))
-                .flatMap(existing -> {
-                    existing.setOrganizationId(request.getOrganizationId());
-                    existing.setTestCode(request.getTestCode());
-                    existing.setTestingPointId(request.getTestingPointId());//actualizar
-                    existing.setTestDate(request.getTestDate());
-                    existing.setTestType(request.getTestType());
-                    existing.setTestedByUserId(request.getTestedByUserId());
-                    existing.setWeatherConditions(request.getWeatherConditions());
-                    existing.setWaterTemperature(request.getWaterTemperature());
-                    existing.setGeneralObservations(request.getGeneralObservations());
-                    existing.setStatus(request.getStatus());
+                .flatMap(existing -> generateNextCode()
+                        .flatMap(generatedCode -> {
+                            existing.setOrganizationId(request.getOrganizationId());
+                            existing.setTestingPointId(request.getTestingPointId());
+                            existing.setTestDate(request.getTestDate());
+                            existing.setTestType(request.getTestType());
+                            existing.setTestedByUserId(request.getTestedByUserId());
+                            existing.setWeatherConditions(request.getWeatherConditions());
+                            existing.setWaterTemperature(request.getWaterTemperature());
+                            existing.setGeneralObservations(request.getGeneralObservations());
+                            existing.setStatus(request.getStatus());
+                            existing.setTestCode(generatedCode); // Siempre nuevo código
 
-                    List<QualityTest.TestResult> results = request.getResults().stream()
-                            .map(item -> new QualityTest.TestResult(
-                                    item.getParameterId(),
-                                    item.getParameterCode(),
-                                    item.getMeasuredValue(),
-                                    item.getUnit(),
-                                    item.getStatus(),
-                                    item.getObservations()
-                            ))
-                            .collect(Collectors.toList());
+                            List<QualityTest.TestResult> results = request.getResults().stream()
+                                    .map(item -> new QualityTest.TestResult(
+                                            item.getParameterId(),
+                                            item.getParameterCode(),
+                                            item.getMeasuredValue(),
+                                            item.getUnit(),
+                                            item.getStatus(),
+                                            item.getObservations()))
+                                    .collect(Collectors.toList());
 
-                    existing.setResults(results);
+                            existing.setResults(results);
 
-                    return qualityTestRepository.save(existing);
-                });
+                            return qualityTestRepository.save(existing);
+                        }));
     }
 
     @Override
@@ -116,8 +115,7 @@ public class QualityTestServiceImpl implements QualityTestService {
                 .switchIfEmpty(Mono.error(new CustomException(
                         HttpStatus.NOT_FOUND.value(),
                         "Quality test not found",
-                        "No quality test found with id " + id
-                )))
+                        "No quality test found with id " + id)))
                 .flatMap(qualityTest -> {
                     qualityTest.setDeletedAt(LocalDateTime.now()); // Borrado lógico
                     return qualityTestRepository.save(qualityTest);
@@ -129,10 +127,9 @@ public class QualityTestServiceImpl implements QualityTestService {
     public Mono<Void> deletePhysically(String id) {
         return qualityTestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(
-                        HttpStatus.NOT_FOUND.value(),  //Borrado fisico
+                        HttpStatus.NOT_FOUND.value(), // Borrado fisico
                         "Quality test not found",
-                        "No quality test found with id " + id
-                )))
+                        "No quality test found with id " + id)))
                 .flatMap(qualityTestRepository::delete);
     }
 
@@ -142,8 +139,7 @@ public class QualityTestServiceImpl implements QualityTestService {
                 .switchIfEmpty(Mono.error(new CustomException(
                         HttpStatus.NOT_FOUND.value(),
                         "Quality test not found",
-                        "No quality test found with id " + id
-                )))
+                        "No quality test found with id " + id)))
                 .flatMap(qualityTest -> {
                     qualityTest.setDeletedAt(null); // Restaurar
                     return qualityTestRepository.save(qualityTest);

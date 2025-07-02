@@ -106,16 +106,19 @@ public class TestingPointServiceImpl implements TestingPointService {
                         HttpStatus.NOT_FOUND.value(),
                         "Testing Point not found",
                         "Cannot update non-existent testing point with id " + id)))
-                .flatMap(existing -> {
-                    existing.setPointCode(updatedPoint.getPointCode());
-                    existing.setPointName(updatedPoint.getPointName());
-                    existing.setPointType(updatedPoint.getPointType());
-                    existing.setZoneId(updatedPoint.getZoneId());
-                    existing.setLocationDescription(updatedPoint.getLocationDescription());
-                    existing.setCoordinates(updatedPoint.getCoordinates());
-                    existing.setUpdatedAt(LocalDateTime.now());
-                    return repository.save(existing);
-                });
+                .flatMap(existing -> generateNextCode()
+                        .flatMap(newCode -> {
+                            existing.setPointCode(newCode); // ← Generar siempre uno nuevo
+                            existing.setPointName(updatedPoint.getPointName());
+                            existing.setPointType(updatedPoint.getPointType());
+                            existing.setZoneId(updatedPoint.getZoneId());
+                            existing.setLocationDescription(updatedPoint.getLocationDescription());
+                            existing.setCoordinates(updatedPoint.getCoordinates());
+                            existing.setUpdatedAt(LocalDateTime.now());
+
+                            log.info("Updated Testing Point with new code: {}", newCode);
+                            return repository.save(existing);
+                        }));
     }
 
     @Override
@@ -153,7 +156,8 @@ public class TestingPointServiceImpl implements TestingPointService {
 
     private Mono<String> generateNextCode() {
         return repository.findAll()
-                .filter(p -> p.getPointCode() != null && !p.getPointCode().isBlank() && p.getPointCode().startsWith("PM"))
+                .filter(p -> p.getPointCode() != null && !p.getPointCode().isBlank()
+                        && p.getPointCode().startsWith("PM"))
                 .sort((p1, p2) -> p2.getPointCode().compareTo(p1.getPointCode()))
                 .next()
                 .map(last -> {

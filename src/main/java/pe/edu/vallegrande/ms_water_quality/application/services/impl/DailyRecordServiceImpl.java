@@ -19,161 +19,169 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class DailyRecordServiceImpl implements DailyRecordService {
 
-    private final DailyRecordRepository repository;
+        private final DailyRecordRepository repository;
 
-    @Override
-    public Flux<DailyRecord> getAll() {
-        return repository.findAll()
-                .doOnNext(record -> log.info("Record found: {}", record));
-    }
-
-    @Override
-    public Mono<DailyRecord> getById(String id) {
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(
-                        HttpStatus.NOT_FOUND.value(),
-                        "Record not found",
-                        "The daily record with id " + id + " was not found")));
-    }
-
-    @Override
-    public Mono<DailyRecord> save(DailyRecordCreateRequest request) {
-        if (request == null || request.getRecordType() == null || request.getOrganizationId() == null
-                || request.getRecordDate() == null) {
-            return Mono.error(new CustomException(
-                    HttpStatus.BAD_REQUEST.value(),
-                    "Invalid request",
-                    "Required fields: recordType, organizationId, and recordDate"));
+        @Override
+        public Flux<DailyRecord> getAll() {
+                return repository.findAll()
+                                .doOnNext(record -> log.info("Record found: {}", record));
         }
 
-        return generateNextCode(request.getRecordType())
-                .flatMap(nextCode -> {
-                    DailyRecord record = new DailyRecord();
-                    record.setRecordType(request.getRecordType());
-                    record.setOrganizationId(request.getOrganizationId());
-                    record.setRecordCode(nextCode);
-                    record.setTestingPointIds(request.getTestingPointIds());
-                    record.setRecordDate(request.getRecordDate());
-                    record.setLevel(request.getLevel());
-                    record.setAcceptable(request.isAcceptable());
-                    record.setActionRequired(request.isActionRequired());
-                    record.setRecordedByUserId(request.getRecordedByUserId());
-                    record.setObservations(request.getObservations());
-                    record.setAmount(request.getAmount());
-                    record.setCreatedAt(LocalDateTime.now());
-
-                    return repository.save(record)
-                            .doOnSuccess(savedRecord -> log.info("Record saved: {}", savedRecord));
-                });
-    }
-
-    @Override
-    public Mono<DailyRecord> update(String id, DailyRecordCreateRequest request) {
-        if (request == null || request.getOrganizationId() == null || request.getRecordDate() == null) {
-            return Mono.error(
-                    new CustomException(HttpStatus.BAD_REQUEST.value(), "Invalid request",
-                            "Required fields: organizationId and recordDate"));
+        @Override
+        public Mono<DailyRecord> getById(String id) {
+                return repository.findById(id)
+                                .switchIfEmpty(Mono.error(new CustomException(
+                                                HttpStatus.NOT_FOUND.value(),
+                                                "Record not found",
+                                                "The daily record with id " + id + " was not found")));
         }
 
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(
-                        HttpStatus.NOT_FOUND.value(),
-                        "Record not found",
-                        "The daily record with id " + id + " was not found")))
-                .flatMap(existing -> {
-                    existing.setOrganizationId(request.getOrganizationId());
-                    existing.setRecordCode(request.getRecordCode());
-                    existing.setTestingPointIds(request.getTestingPointIds());
-                    existing.setRecordDate(request.getRecordDate());
-                    existing.setLevel(request.getLevel());
-                    existing.setAcceptable(request.isAcceptable());
-                    existing.setActionRequired(request.isActionRequired());
-                    existing.setRecordedByUserId(request.getRecordedByUserId());
-                    existing.setObservations(request.getObservations());
-                    existing.setAmount(request.getAmount());
-
-                    return repository.save(existing)
-                            .doOnSuccess(updatedRecord -> log.info("Record updated: {}", updatedRecord));
-                });
-    }
-
-    @Override
-    public Mono<Void> delete(String id) {
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(
-                        HttpStatus.NOT_FOUND.value(),
-                        "Record not found",
-                        "The daily record with id " + id + " was not found")))
-                .flatMap(existing -> {
-                    existing.setDeletedAt(LocalDateTime.now());
-                    return repository.save(existing)
-                            .doOnSuccess(r -> log.info("Record logically deleted: {}", id))
-                            .then();
-                });
-    }
-
-    @Override
-    public Mono<Void> deletePhysically(String id) {
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(
-                        HttpStatus.NOT_FOUND.value(),
-                        "Record not found",
-                        "The daily record with id " + id + " was not found")))
-                .flatMap(repository::delete)
-                .doOnSuccess(aVoid -> log.info("Record physically deleted: {}", id));
-    }
-
-    @Override
-    public Mono<DailyRecord> restore(String id) {
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(
-                        HttpStatus.NOT_FOUND.value(),
-                        "Record not found",
-                        "The daily record with id " + id + " was not found")))
-                .flatMap(existing -> {
-                    if (existing.getDeletedAt() == null) {
+        @Override
+        public Mono<DailyRecord> save(DailyRecordCreateRequest request) {
+                if (request == null || request.getRecordType() == null || request.getOrganizationId() == null
+                                || request.getRecordDate() == null) {
                         return Mono.error(new CustomException(
-                                HttpStatus.CONFLICT.value(),
-                                "Restore not needed",
-                                "The record is already active"));
-                    }
+                                        HttpStatus.BAD_REQUEST.value(),
+                                        "Invalid request",
+                                        "Required fields: recordType, organizationId, and recordDate"));
+                }
 
-                    existing.setDeletedAt(null);
-                    return repository.save(existing)
-                            .doOnSuccess(restoredRecord -> log.info("Record restored: {}", restoredRecord));
-                });
-    }
+                return generateNextCode(request.getRecordType())
+                                .flatMap(nextCode -> {
+                                        DailyRecord record = new DailyRecord();
+                                        record.setRecordType(request.getRecordType());
+                                        record.setOrganizationId(request.getOrganizationId());
+                                        record.setRecordCode(nextCode);
+                                        record.setTestingPointIds(request.getTestingPointIds());
+                                        record.setRecordDate(request.getRecordDate());
+                                        record.setLevel(request.getLevel());
+                                        record.setAcceptable(request.isAcceptable());
+                                        record.setActionRequired(request.isActionRequired());
+                                        record.setRecordedByUserId(request.getRecordedByUserId());
+                                        record.setObservations(request.getObservations());
+                                        record.setAmount(request.getAmount());
+                                        record.setCreatedAt(LocalDateTime.now());
 
-//    private Mono<String> generateNextCode() {
- //       return repository.findAll()
- //               .sort((s1, s2) -> s2.getRecordCode().compareTo(s1.getRecordCode()))
- //               .next()
- //               .map(last -> {
- //                   try {
- //                       String lastCode = last.getRecordCode(); // Ejemplo: "JASS007"
- //                       int number = Integer.parseInt(lastCode.replace("JASS", ""));
- //                       return String.format("JASS%03d", number + 1);
- //                   } catch (Exception e) {
- //                       return "JASS001";
- //                   }
- //               })
- //               .defaultIfEmpty("JASS001");
- //   }
+                                        return repository.save(record)
+                                                        .doOnSuccess(savedRecord -> log.info("Record saved: {}",
+                                                                        savedRecord));
+                                });
+        }
 
-    private Mono<String> generateNextCode(String tipo) {
-        String prefix = tipo.equalsIgnoreCase("CLORO") ? "CL" : "SA";
+        @Override
+        public Mono<DailyRecord> update(String id, DailyRecordCreateRequest request) {
+                if (request == null || request.getOrganizationId() == null || request.getRecordDate() == null) {
+                        return Mono.error(
+                                        new CustomException(HttpStatus.BAD_REQUEST.value(), "Invalid request",
+                                                        "Required fields: organizationId and recordDate"));
+                }
 
-        return repository.findByRecordTypeOrderByRecordCodeDesc(tipo)
-                .next()
-                .map(last -> {
-                    try {
-                        String lastCode = last.getRecordCode(); // Ejemplo: "CL005"
-                        int number = Integer.parseInt(lastCode.replace(prefix, ""));
-                        return String.format("%s%03d", prefix, number + 1);
-                    } catch (Exception e) {
-                        return prefix + "001";
-                    }
-                })
-                .defaultIfEmpty(prefix + "001");
-    }
+                return repository.findById(id)
+                                .switchIfEmpty(Mono.error(new CustomException(
+                                                HttpStatus.NOT_FOUND.value(),
+                                                "Record not found",
+                                                "The daily record with id " + id + " was not found")))
+                                .flatMap(existing -> {
+                                        existing.setOrganizationId(request.getOrganizationId());
+                                        existing.setTestingPointIds(request.getTestingPointIds());
+                                        existing.setRecordDate(request.getRecordDate());
+                                        existing.setLevel(request.getLevel());
+                                        existing.setAcceptable(request.isAcceptable());
+                                        existing.setActionRequired(request.isActionRequired());
+                                        existing.setRecordedByUserId(request.getRecordedByUserId());
+                                        existing.setObservations(request.getObservations());
+                                        existing.setAmount(request.getAmount());
+
+                                        // Siempre generar un nuevo código
+                                        return generateNextCode(request.getRecordType())
+                                                        .flatMap(nextCode -> {
+                                                                existing.setRecordCode(nextCode);
+                                                                return repository.save(existing)
+                                                                                .doOnSuccess(updatedRecord -> log.info(
+                                                                                                "Record updated with regenerated code: {}",
+                                                                                                updatedRecord));
+                                                        });
+                                });
+        }
+
+        @Override
+        public Mono<Void> delete(String id) {
+                return repository.findById(id)
+                                .switchIfEmpty(Mono.error(new CustomException(
+                                                HttpStatus.NOT_FOUND.value(),
+                                                "Record not found",
+                                                "The daily record with id " + id + " was not found")))
+                                .flatMap(existing -> {
+                                        existing.setDeletedAt(LocalDateTime.now());
+                                        return repository.save(existing)
+                                                        .doOnSuccess(r -> log.info("Record logically deleted: {}", id))
+                                                        .then();
+                                });
+        }
+
+        @Override
+        public Mono<Void> deletePhysically(String id) {
+                return repository.findById(id)
+                                .switchIfEmpty(Mono.error(new CustomException(
+                                                HttpStatus.NOT_FOUND.value(),
+                                                "Record not found",
+                                                "The daily record with id " + id + " was not found")))
+                                .flatMap(repository::delete)
+                                .doOnSuccess(aVoid -> log.info("Record physically deleted: {}", id));
+        }
+
+        @Override
+        public Mono<DailyRecord> restore(String id) {
+                return repository.findById(id)
+                                .switchIfEmpty(Mono.error(new CustomException(
+                                                HttpStatus.NOT_FOUND.value(),
+                                                "Record not found",
+                                                "The daily record with id " + id + " was not found")))
+                                .flatMap(existing -> {
+                                        if (existing.getDeletedAt() == null) {
+                                                return Mono.error(new CustomException(
+                                                                HttpStatus.CONFLICT.value(),
+                                                                "Restore not needed",
+                                                                "The record is already active"));
+                                        }
+
+                                        existing.setDeletedAt(null);
+                                        return repository.save(existing)
+                                                        .doOnSuccess(restoredRecord -> log.info("Record restored: {}",
+                                                                        restoredRecord));
+                                });
+        }
+
+        // private Mono<String> generateNextCode() {
+        // return repository.findAll()
+        // .sort((s1, s2) -> s2.getRecordCode().compareTo(s1.getRecordCode()))
+        // .next()
+        // .map(last -> {
+        // try {
+        // String lastCode = last.getRecordCode(); // Ejemplo: "JASS007"
+        // int number = Integer.parseInt(lastCode.replace("JASS", ""));
+        // return String.format("JASS%03d", number + 1);
+        // } catch (Exception e) {
+        // return "JASS001";
+        // }
+        // })
+        // .defaultIfEmpty("JASS001");
+        // }
+
+        private Mono<String> generateNextCode(String tipo) {
+                String prefix = tipo.equalsIgnoreCase("CLORO") ? "CL" : "SA";
+
+                return repository.findByRecordTypeOrderByRecordCodeDesc(tipo)
+                                .next()
+                                .map(last -> {
+                                        try {
+                                                String lastCode = last.getRecordCode(); // Ejemplo: "CL005"
+                                                int number = Integer.parseInt(lastCode.replace(prefix, ""));
+                                                return String.format("%s%03d", prefix, number + 1);
+                                        } catch (Exception e) {
+                                                return prefix + "001";
+                                        }
+                                })
+                                .defaultIfEmpty(prefix + "001");
+        }
 }
