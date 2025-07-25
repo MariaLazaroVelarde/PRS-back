@@ -6,9 +6,9 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 
 @SpringBootApplication
 @OpenAPIDefinition
-public class StructureMicroserviceApplication {
+public class VgMsWaterQuality {
 
     public static void main(String[] args) {
-        SpringApplication.run(StructureMicroserviceApplication.class, args);
+        SpringApplication.run(VgMsWaterQuality.class, args);
     }
 }

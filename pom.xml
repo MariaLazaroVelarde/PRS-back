@@ -17,7 +17,7 @@
     <properties>
         <java.version>17</java.version>
         <springdoc.version>2.8.8</springdoc.version>
-        <start-class>pe.edu.vallegrande.ms_water_quality.StructureMicroserviceApplication</start-class>
+        <start-class>pe.edu.vallegrande.ms_water_quality.VgMsWaterQuality</start-class>
     </properties>
 
     <dependencies>
