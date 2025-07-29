@@ -11,21 +11,26 @@ spring:
 
 server:
      port: 8087
-     servlet:
-          context-path: /
+     forward-headers-strategy: framework
+cors:
+     allowed-origins: "*"
+     allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS,HEAD
+     allowed-headers: "*"
+     allow-credentials: true
+     max-age: 3600
+
 
 springdoc:
-     swagger-ui:
-          path: /swagger-ui.html
-          enabled: true
-          config-url: /v3/api-docs/swagger-config
-          urls:
-               - url: /v3/api-docs
-                 name: API V1
-     api-docs:
-          path: /v3/api-docs
-     default-produces-media-type: application/json
-     paths-to-match: /api/**
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    urls:
+      - url: /v3/api-docs
+        name: API V1
+  api-docs:
+    path: /v3/api-docs
+  default-produces-media-type: application/json
+  paths-to-match: /api/**
 
 management:
      endpoints:
