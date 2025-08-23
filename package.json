@@ -1,0 +1,15 @@
+{
+  "name": "vg-ms-water-quality",
+  "version": "1.0.0",
+  "description": "Microservicio de calidad de agua con endpoints CRUD",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^30.0.5"
+  }
+}

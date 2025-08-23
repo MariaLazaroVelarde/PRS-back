@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: pe.edu.vallegrande.ms_water_quality.TestingPointServiceImplTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.491 s -- in pe.edu.vallegrande.ms_water_quality.TestingPointServiceImplTest

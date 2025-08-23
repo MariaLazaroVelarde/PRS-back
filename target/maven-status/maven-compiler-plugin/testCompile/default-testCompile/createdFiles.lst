@@ -1,1 +1,3 @@
-pe/edu/vallegrande/ms_water_quality/StructureMicroserviceApplicationTests.class
+pe\edu\vallegrande\ms_water_quality\TestingPointServiceImplTest.class
+pe\edu\vallegrande\ms_water_quality\QualityTestServiceImplTest.class
+pe\edu\vallegrande\ms_water_quality\VgMsWaterQualityTests.class

@@ -15,4 +15,6 @@ public interface TestingPointRepository extends ReactiveMongoRepository<TestingP
 
     Flux<TestingPoint> findAllByOrganizationId(String organizationId);
 
+    Object findByPointCode(String string);
+
 }
