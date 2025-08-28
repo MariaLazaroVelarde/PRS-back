@@ -1,5 +1,4 @@
 package pe.edu.vallegrande.ms_water_quality;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -43,24 +42,6 @@ class QualityTestServiceImplTest {
     }
 
     @Test
-    void testGetAll() {
-        when(repository.findAll()).thenReturn(Flux.just(sampleTest));
-
-        StepVerifier.create(service.getAll())
-                .expectNext(sampleTest)
-                .verifyComplete();
-    }
-
-    @Test
-    void testGetByIdFound() {
-        when(repository.findById("TST001")).thenReturn(Mono.just(sampleTest));
-
-        StepVerifier.create(service.getById("TST001"))
-                .expectNextMatches(qt -> qt.getTestCode().equals("ANL001"))
-                .verifyComplete();
-    }
-
-    @Test
     void testSaveValidRequest() {
         QualityTestCreateRequest request = new QualityTestCreateRequest();
         request.setOrganizationId("ORG1");
@@ -74,6 +55,30 @@ class QualityTestServiceImplTest {
         StepVerifier.create(service.save(request))
                 .expectNextMatches(saved -> saved.getTestCode().equals("ANL001"))
                 .verifyComplete();
+
+        System.out.println("ESCENARIO 01: POST = Creación exitosa");
+    }
+
+    @Test
+    void testGetAll() {
+        when(repository.findAll()).thenReturn(Flux.just(sampleTest));
+
+        StepVerifier.create(service.getAll())
+                .expectNext(sampleTest)
+                .verifyComplete();
+
+        System.out.println("ESCENARIO 02: GET = Consulta exitosa");
+    }
+
+    @Test
+    void testGetByIdFound() {
+        when(repository.findById("TST001")).thenReturn(Mono.just(sampleTest));
+
+        StepVerifier.create(service.getById("TST001"))
+                .expectNextMatches(qt -> qt.getTestCode().equals("ANL001"))
+                .verifyComplete();
+
+        System.out.println("ESCENARIO 03: GET by ID = Consulta exitosa");
     }
 
     @Test
@@ -83,6 +88,7 @@ class QualityTestServiceImplTest {
 
         StepVerifier.create(service.deletePhysically("TST001"))
                 .verifyComplete();
+
+        System.out.println("ESCENARIO 04: DELETE = Eliminación exitosa");
     }
 }
-

@@ -43,32 +43,14 @@ class TestingPointServiceImplTest {
     }
 
     @Test
-    void testGetAll() {
-        when(repository.findAll()).thenReturn(Flux.just(samplePoint));
-
-        StepVerifier.create(service.getAll())
-                .expectNext(samplePoint)
-                .verifyComplete();
-    }
-
-    @Test
-    void testGetByIdFound() {
-        when(repository.findById("123")).thenReturn(Mono.just(samplePoint));
-
-        StepVerifier.create(service.getById("123"))
-                .expectNextMatches(tp -> tp.getPointName().equals("Reservorio Central"))
-                .verifyComplete();
-    }
-
-    @Test
     void testSaveValidRequest() {
         TestingPointCreateRequest request = new TestingPointCreateRequest();
         request.setOrganizationId("ORG1");
         request.setPointName("Nuevo Punto");
 
-        // Inicializa coordinates para evitar NullPointerException
+        // Inicializa coordinates
         TestingPointCreateRequest.Coordinates coords = new TestingPointCreateRequest.Coordinates();
-        coords.setLatitude(-12.05); // Usa valores válidos
+        coords.setLatitude(-12.05);
         coords.setLongitude(-77.05);
         request.setCoordinates(coords);
 
@@ -78,6 +60,45 @@ class TestingPointServiceImplTest {
         StepVerifier.create(service.save(request))
                 .expectNextMatches(resp -> resp.getPointCode().equals("PM001"))
                 .verifyComplete();
+
+        System.out.println("ESCENARIO 01: POST = Creación exitosa");
+    }
+
+    @Test
+    void testGetAll() {
+        when(repository.findAll()).thenReturn(Flux.just(samplePoint));
+
+        StepVerifier.create(service.getAll())
+                .expectNext(samplePoint)
+                .verifyComplete();
+
+        System.out.println("ESCENARIO 02: GET = Consulta exitosa");
+    }
+
+    @Test
+    void testGetByIdFound() {
+        when(repository.findById("123")).thenReturn(Mono.just(samplePoint));
+
+        StepVerifier.create(service.getById("123"))
+                .expectNextMatches(tp -> tp.getPointName().equals("Reservorio Central"))
+                .verifyComplete();
+
+        System.out.println("ESCENARIO 03: GET by ID = Consulta exitosa");
+    }
+
+    @Test
+    void testUpdateExisting() {
+        samplePoint.setPointName("Reservorio Actualizado");
+
+        when(repository.findById("123")).thenReturn(Mono.just(samplePoint));
+        when(repository.findAll()).thenReturn(Flux.just(samplePoint)); // 👈 mock obligatorio
+        when(repository.save(any(TestingPoint.class))).thenReturn(Mono.just(samplePoint));
+
+        StepVerifier.create(service.update("123", samplePoint))
+                .expectNextMatches(tp -> tp.getPointName().equals("Reservorio Actualizado"))
+                .verifyComplete();
+
+        System.out.println("ESCENARIO 04: PUT = Actualización exitosa");
     }
 
     @Test
@@ -87,5 +108,7 @@ class TestingPointServiceImplTest {
 
         StepVerifier.create(service.delete("123"))
                 .verifyComplete();
+
+        System.out.println("ESCENARIO 05: DELETE = Eliminación exitosa");
     }
 }
