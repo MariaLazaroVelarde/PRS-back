@@ -36,6 +36,9 @@ public class TestingPoint {
     @Field("location_description")
     private String locationDescription;
 
+    @Field("street")
+    private String street; // Calle para puntos de tipo DOMICILIO/SUMINISTRO
+
     private Coordinates coordinates;
 
     private String status = "ACTIVE";

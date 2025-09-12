@@ -424,8 +424,29 @@ db.distribution_programs.createIndex({ "program_date": 1, "organization_id": 1 }
 db.distribution_programs.createIndex({ "status": 1 })
 ```
 
-### 4. MS-CALIDAD-AGUA
+### 4. MS-CALIDAD-AGUA (Puerto 8087)
+
+**📊 Microservicio Actual: MS-CALIDAD-AGUA**
+- **Puerto**: 8087  
+- **Tecnología**: Spring Boot WebFlux (Reactivo)  
+- **Base de Datos**: MongoDB  
+- **Autenticación**: OAuth2 Resource Server  
+
+**🔗 Endpoints Implementados:**
+- `/api/v2/dailyrecords` - Registros diarios de calidad
+- `/api/v2/qualitytests` - Pruebas de laboratorio
+- `/api/v2/qualityparameters` - Parámetros de medición
+- `/api/v2/testingpoints` - Puntos de muestreo
+- `/api/v2/qualityincidents` - Incidencias de calidad
+- `/api/v2/users` - Gestión de usuarios
+
+**📋 Documentación API:**
+- **Swagger UI**: `http://localhost:8087/swagger-ui.html`
+- **Health Check**: `http://localhost:8087/actuator/health`
+- **Métricas**: `http://localhost:8087/actuator/prometheus`
+
 ```json
+
 // Colección: quality_tests
 {
   "_id": ObjectId("..."),
@@ -435,14 +456,15 @@ db.distribution_programs.createIndex({ "status": 1 })
     "point_id": ObjectId("..."),
     "point_code": "PM001",
     "point_name": "Reservorio Principal",
-    "point_type": "RESERVORIO",
+    "point_type": "RESERVORIO", // RESERVORIO, RED_DISTRIBUCION, DOMICILIO
     "location": {
       "zone_id": ObjectId("..."),
       "coordinates": {
         "latitude": -12.0464,
         "longitude": -77.0428
       },
-      "description": "Entrada del reservorio principal"
+      "description": "Entrada del reservorio principal",
+      "street": "Av. Los Rosales 456" // Campo para puntos tipo DOMICILIO/SUMINISTRO
     }
   },
   "test_info": {
@@ -497,6 +519,68 @@ db.distribution_programs.createIndex({ "status": 1 })
   "created_at": ISODate("2023-06-05T08:30:00Z")
 }
 
+// Ejemplo para Punto de Análisis tipo DOMICILIO/SUMINISTRO
+{
+  "_id": ObjectId("..."),
+  "organization_id": ObjectId("..."),
+  "test_code": "ANL002",
+  "testing_point": {
+    "point_id": ObjectId("..."),
+    "point_code": "PM002",
+    "point_name": "Casa Rodriguez",
+    "point_type": "DOMICILIO",
+    "location": {
+      "zone_id": ObjectId("..."),
+      "coordinates": {
+        "latitude": -12.0480,
+        "longitude": -77.0445
+      },
+      "description": "Vivienda unifamiliar en zona residencial",
+      "street": "Calle Los Pinos 123" // Campo obligatorio para puntos tipo DOMICILIO
+    }
+  },
+  "test_info": {
+    "test_date": ISODate("2023-06-05T10:00:00Z"),
+    "test_type": "RUTINARIO",
+    "tested_by": {
+      "user_id": ObjectId("..."),
+      "user_name": "Ana Química"
+    }
+  },
+  "parameters": [
+    {
+      "parameter_code": "CLORO_LIBRE",
+      "parameter_name": "Cloro Libre Residual",
+      "measured_value": 0.6,
+      "unit": "mg/L",
+      "status": "ACCEPTABLE",
+      "observations": "Nivel adecuado en suministro domiciliario"
+    }
+  ],
+  "overall_status": "ACCEPTABLE",
+  "general_observations": "Agua de buena calidad en punto de suministro domiciliario",
+  "created_at": ISODate("2023-06-05T10:30:00Z")
+}
+
+// Colección: testing_points (Puntos de Análisis independientes)
+{
+  "_id": ObjectId("..."),
+  "organization_id": ObjectId("..."),
+  "point_code": "PM003",
+  "point_name": "Casa Martínez",
+  "point_type": "DOMICILIO", // RESERVORIO, RED_DISTRIBUCION, DOMICILIO
+  "zone_id": ObjectId("..."),
+  "location_description": "Vivienda en calle principal",
+  "street": "Av. Los Rosales 456", // Campo para direcciones de suministros domiciliarios
+  "coordinates": {
+    "latitude": -12.0495,
+    "longitude": -77.0460
+  },
+  "status": "ACTIVE",
+  "created_at": ISODate("2023-06-01T09:00:00Z"),
+  "updated_at": ISODate("2023-06-01T09:00:00Z")
+}
+
 // Colección: chlorine_records (para registros diarios rápidos)
 {
   "_id": ObjectId("..."),
@@ -520,6 +604,8 @@ db.distribution_programs.createIndex({ "status": 1 })
 db.quality_tests.createIndex({ "test_date": 1, "organization_id": 1 })
 db.quality_tests.createIndex({ "testing_point.point_id": 1 })
 db.chlorine_records.createIndex({ "record_date": 1, "testing_point_id": 1 })
+db.testing_points.createIndex({ "organization_id": 1, "point_code": 1 })
+db.testing_points.createIndex({ "point_type": 1, "status": 1 })
 ```
 
 ### 5. MS-RECLAMOS-INCIDENCIAS
@@ -727,6 +813,15 @@ db.incidents.createIndex({ "status": 1, "incident_info.incident_date": 1 })
     "amount": 150.00,
     "month": "Junio",
     "organization_name": "JASS Central"
-  }
+  },
+  "status": "PENDING",
+  "sent_channels": [],
+  "delivery_attempts": 0,
+  "created_at": ISODate("2023-06-10T09:00:00Z")
 }
+
+// Índices
+db.notification_templates.createIndex({ "organization_id": 1, "template_code": 1 })
+db.notifications.createIndex({ "organization_id": 1, "status": 1 })
+db.notifications.createIndex({ "recipient.user_id": 1, "created_at": 1 })
 ```

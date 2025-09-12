@@ -23,22 +23,28 @@ public class TestingPointServiceImpl implements TestingPointService {
 
     private final TestingPointRepository repository;
 
+    /** GET /sampling-points */
     @Override
     public Flux<TestingPoint> getAll() {
         return repository.findAll()
-                .doOnNext(tp -> log.info("Testing Point retrieved: {}", tp));
+                .doOnNext(tp -> log.info("Retrieved point: {}", tp.getId()));
     }
 
+    /** GET /sampling-points/active */
     @Override
     public Flux<TestingPoint> getAllActive() {
-        return repository.findAllByStatus(Constants.ACTIVE.name());
+        return repository.findAllByStatus(Constants.ACTIVE.name())
+                .doOnNext(tp -> log.info("Active point: {}", tp.getId()));
     }
 
+    /** GET /sampling-points/inactive */
     @Override
     public Flux<TestingPoint> getAllInactive() {
-        return repository.findAllByStatus(Constants.INACTIVE.name());
+        return repository.findAllByStatus(Constants.INACTIVE.name())
+                .doOnNext(tp -> log.info("Inactive point: {}", tp.getId()));
     }
 
+    /** GET /sampling-points/{id} */
     @Override
     public Mono<TestingPoint> getById(String id) {
         return repository.findById(id)
@@ -48,6 +54,7 @@ public class TestingPointServiceImpl implements TestingPointService {
                         "The requested point with id " + id + " was not found")));
     }
 
+    /** POST /sampling-points */
     @Override
     public Mono<TestingPointResponse> save(TestingPointCreateRequest request) {
         if (request == null || request.getOrganizationId() == null || request.getPointName() == null) {
@@ -59,56 +66,42 @@ public class TestingPointServiceImpl implements TestingPointService {
 
         return generateNextCode()
                 .flatMap(nextCode -> {
-                    log.info("Generated next point code: {}", nextCode); // ✅ Verificación
+                    log.info("Generated next code: {}", nextCode);
                     TestingPoint point = new TestingPoint();
                     point.setOrganizationId(request.getOrganizationId());
-                    point.setPointCode(nextCode); // ✅ Ahora se asigna correctamente
+                    point.setPointCode(nextCode);
                     point.setPointName(request.getPointName());
                     point.setPointType(request.getPointType());
                     point.setZoneId(request.getZoneId());
                     point.setLocationDescription(request.getLocationDescription());
-                    point.setCoordinates(new TestingPoint.Coordinates(
-                            request.getCoordinates().getLatitude(),
-                            request.getCoordinates().getLongitude()));
+
+                    if (request.getCoordinates() != null) {
+                        point.setCoordinates(new TestingPoint.Coordinates(
+                                request.getCoordinates().getLatitude(),
+                                request.getCoordinates().getLongitude()));
+                    }
+
                     point.setStatus(Constants.ACTIVE.name());
                     point.setCreatedAt(LocalDateTime.now());
                     point.setUpdatedAt(LocalDateTime.now());
 
                     return repository.save(point)
-                            .doOnSuccess(saved -> log.info("Testing Point saved: {}", saved))
-                            .map(saved -> {
-                                TestingPointResponse response = new TestingPointResponse();
-                                response.setId(saved.getId());
-                                response.setOrganizationId(saved.getOrganizationId());
-                                response.setPointCode(saved.getPointCode());
-                                response.setPointName(saved.getPointName());
-                                response.setPointType(saved.getPointType());
-                                response.setZoneId(saved.getZoneId());
-                                response.setLocationDescription(saved.getLocationDescription());
-
-                                if (saved.getCoordinates() != null) {
-                                    response.setCoordinates(new TestingPointResponse.Coordinates(
-                                            saved.getCoordinates().getLatitude(),
-                                            saved.getCoordinates().getLongitude()));
-                                }
-
-                                response.setStatus(saved.getStatus());
-                                response.setCreatedAt(saved.getCreatedAt());
-                                return response;
-                            });
+                            .doOnSuccess(saved -> log.info("Saved point: {}", saved.getId()))
+                            .map(this::mapToResponse);
                 });
     }
 
+    /** PUT /sampling-points/{id} */
     @Override
     public Mono<TestingPoint> update(String id, TestingPoint updatedPoint) {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(
                         HttpStatus.NOT_FOUND.value(),
                         "Testing Point not found",
-                        "Cannot update non-existent testing point with id " + id)))
+                        "Cannot update non-existent point with id " + id)))
                 .flatMap(existing -> generateNextCode()
                         .flatMap(newCode -> {
-                            existing.setPointCode(newCode); // ← Generar siempre uno nuevo
+                            existing.setPointCode(newCode); // Código nuevo en cada actualización
                             existing.setPointName(updatedPoint.getPointName());
                             existing.setPointType(updatedPoint.getPointType());
                             existing.setZoneId(updatedPoint.getZoneId());
@@ -116,31 +109,35 @@ public class TestingPointServiceImpl implements TestingPointService {
                             existing.setCoordinates(updatedPoint.getCoordinates());
                             existing.setUpdatedAt(LocalDateTime.now());
 
-                            log.info("Updated Testing Point with new code: {}", newCode);
+                            log.info("Updated point {} with new code {}", id, newCode);
                             return repository.save(existing);
                         }));
     }
 
+    /** DELETE /sampling-points/{id} */
     @Override
     public Mono<Void> delete(String id) {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(
                         HttpStatus.NOT_FOUND.value(),
                         "Testing Point not found",
-                        "Cannot delete non-existent testing point with id " + id)))
+                        "Cannot delete non-existent point with id " + id)))
                 .flatMap(repository::delete);
     }
 
+    /** PATCH /sampling-points/{id}/activate */
     @Override
     public Mono<TestingPoint> activate(String id) {
         return changeStatus(id, Constants.ACTIVE.name());
     }
 
+    /** PATCH /sampling-points/{id}/deactivate */
     @Override
     public Mono<TestingPoint> deactivate(String id) {
         return changeStatus(id, Constants.INACTIVE.name());
     }
 
+    // Método interno para activar/desactivar
     private Mono<TestingPoint> changeStatus(String id, String status) {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(
@@ -150,10 +147,12 @@ public class TestingPointServiceImpl implements TestingPointService {
                 .flatMap(point -> {
                     point.setStatus(status);
                     point.setUpdatedAt(LocalDateTime.now());
+                    log.info("Changed status of {} to {}", id, status);
                     return repository.save(point);
                 });
     }
 
+    // Generar siguiente código PM###
     private Mono<String> generateNextCode() {
         return repository.findAll()
                 .filter(p -> p.getPointCode() != null && !p.getPointCode().isBlank()
@@ -162,13 +161,34 @@ public class TestingPointServiceImpl implements TestingPointService {
                 .next()
                 .map(last -> {
                     try {
-                        String lastCode = last.getPointCode(); // Ejemplo: "PM007"
-                        int number = Integer.parseInt(lastCode.replace("PM", ""));
+                        int number = Integer.parseInt(last.getPointCode().replace("PM", ""));
                         return String.format("PM%03d", number + 1);
                     } catch (Exception e) {
                         return "PM001";
                     }
                 })
                 .defaultIfEmpty("PM001");
+    }
+
+    // Convertir modelo a DTO de respuesta
+    private TestingPointResponse mapToResponse(TestingPoint point) {
+        TestingPointResponse response = new TestingPointResponse();
+        response.setId(point.getId());
+        response.setOrganizationId(point.getOrganizationId());
+        response.setPointCode(point.getPointCode());
+        response.setPointName(point.getPointName());
+        response.setPointType(point.getPointType());
+        response.setZoneId(point.getZoneId());
+        response.setLocationDescription(point.getLocationDescription());
+
+        if (point.getCoordinates() != null) {
+            response.setCoordinates(new TestingPointResponse.Coordinates(
+                    point.getCoordinates().getLatitude(),
+                    point.getCoordinates().getLongitude()));
+        }
+
+        response.setStatus(point.getStatus());
+        response.setCreatedAt(point.getCreatedAt());
+        return response;
     }
 }

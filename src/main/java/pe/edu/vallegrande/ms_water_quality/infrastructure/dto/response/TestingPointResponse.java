@@ -20,6 +20,7 @@ public class TestingPointResponse {
 
     private String zoneId;
     private String locationDescription;
+    private String street; // Calle para puntos de tipo DOMICILIO/SUMINISTRO
 
     private Coordinates coordinates;
 

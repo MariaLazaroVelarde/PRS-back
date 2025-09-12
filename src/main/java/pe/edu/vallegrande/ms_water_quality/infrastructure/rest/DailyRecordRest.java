@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v2/dailyrecords")
+@RequestMapping("/api/admin/quality/dailyrecords")
 @CrossOrigin("*")
 @RequiredArgsConstructor
 public class DailyRecordRest {

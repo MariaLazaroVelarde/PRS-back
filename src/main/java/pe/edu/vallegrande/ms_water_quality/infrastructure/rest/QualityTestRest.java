@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v2/qualitytests")
+@RequestMapping("/api/admin/quality/tests")
 @CrossOrigin("*")
 @AllArgsConstructor
 public class QualityTestRest {

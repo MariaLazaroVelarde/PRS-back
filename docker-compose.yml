@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   copichat:
-    image: marianayeli/vg-ms-water-quality:v1
+    image: marianayeli/vg-ms-water-quality:latest
     ports:
       - "8087:8087"
     environment:

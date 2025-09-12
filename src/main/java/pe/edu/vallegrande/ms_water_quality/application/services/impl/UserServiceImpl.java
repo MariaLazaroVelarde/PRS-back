@@ -23,7 +23,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
-
     @Override
     public Flux<User> getAll() {
         return userRepository.findAll()

@@ -15,7 +15,7 @@ spring:
                          issuer-uri: http://localhost:8080/realms/Prs-water-quality
                          jwk-set-uri: http://localhost:8080/realms/Prs-water-quality/protocol/openid-connect/certs
 server:
-     port: 8087
+     port: ${PORT:8087}
      forward-headers-strategy: framework
 cors:
      allowed-origins: "*"

@@ -15,6 +15,7 @@ public class TestingPointCreateRequest {
     private String pointType; // RESERVORIO, RED_DISTRIBUCION, DOMICILIO
     private String zoneId;
     private String locationDescription;
+    private String street; // Calle para puntos de tipo DOMICILIO/SUMINISTRO
     private Coordinates coordinates;
 
     @Data

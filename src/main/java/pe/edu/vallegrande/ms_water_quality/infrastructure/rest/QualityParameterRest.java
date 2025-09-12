@@ -15,12 +15,15 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v2/qualityparameters")
+@RequestMapping("/api/admin/quality/parameters")
 @CrossOrigin("*")
-@AllArgsConstructor
 public class QualityParameterRest {
 
     private final QualityParameterService service;
+
+    public QualityParameterRest(QualityParameterService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public Mono<ResponseDto<List<QualityParameter>>> getAll() {

@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v2/qualityincidents")
+@RequestMapping("/api/admin/quality/reports")
 @CrossOrigin("*")
 @RequiredArgsConstructor
 public class QualityIncidentRest {

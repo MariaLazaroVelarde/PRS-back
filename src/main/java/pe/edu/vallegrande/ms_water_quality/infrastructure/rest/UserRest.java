@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v2/users")
+@RequestMapping("/api/admin/quality/users")
 @CrossOrigin("*")
 @AllArgsConstructor
 public class UserRest {
