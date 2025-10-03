@@ -26,8 +26,7 @@ public class QualityParameterServiceImpl implements QualityParameterService {
     /** GET /api/admin/quality/parameters */
     @Override
     public Flux<QualityParameter> getAll() {
-        return repository.findAll()
-                .doOnNext(param -> log.info("QualityParameter retrieved: {}", param));
+        return repository.findAll();
     }
 
     /** GET /api/admin/quality/parameters/active */

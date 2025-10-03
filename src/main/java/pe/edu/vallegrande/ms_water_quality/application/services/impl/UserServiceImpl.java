@@ -25,8 +25,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Flux<User> getAll() {
-        return userRepository.findAll()
-                .doOnNext(user -> log.info("User retrieved: {}", user));
+        return userRepository.findAll();
     }
 
     @Override

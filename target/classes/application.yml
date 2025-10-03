@@ -1,56 +1,77 @@
 spring:
-     application:
-          name: ${NOMBRE_MICROSERVICIO:structure-microservice}
-     data:
-          mongodb:
-               uri: mongodb+srv://${MONGO_USERNAME:sistemajass}:${MONGO_PASSWORD:ZC7O1Ok40SwkfEje}@sistemajass.jn6cpoz.mongodb.net/${MONGO_DATABASE:JASS_DIGITAL}?retryWrites=true&w=majority
-     web:
-          resources:
-               cache:
-                    period: 0
-     security: 
+  application:
+    name: ${NOMBRE_MICROSERVICIO:ms-water-quality}
+  data:
+    mongodb:
+      uri: mongodb+srv://${MONGO_USERNAME:sistemajass}:${MONGO_PASSWORD:ZC7O1Ok40SwkfEje}@sistemajass.jn6cpoz.mongodb.net/${MONGO_DATABASE:JASS_DIGITAL}?retryWrites=true&w=majority&maxPoolSize=5&minPoolSize=1&maxIdleTimeMS=30000&serverSelectionTimeoutMS=5000
+  web:
+    resources:
+      cache:
+        period: 86400
+  security:
           oauth2:
                resourceserver:
                     jwt:
-                         issuer-uri: http://localhost:8080/realms/Prs-water-quality
-                         jwk-set-uri: http://localhost:8080/realms/Prs-water-quality/protocol/openid-connect/certs
+                         issuer-uri: https://lab.vallegrande.edu.pe/jass/keycloak/realms/sistema-jass
+                         jwk-set-uri: https://lab.vallegrande.edu.pe/jass/keycloak/realms/sistema-jass/protocol/openid-connect/certs
 server:
-     port: ${PORT:8087}
-     forward-headers-strategy: framework
+  port: ${PORT:8087}
+  forward-headers-strategy: framework
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  http2:
+    enabled: true
+
 cors:
-     allowed-origins: "*"
-     allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS,HEAD
-     allowed-headers: "*"
-     allow-credentials: true
-     max-age: 3600
+  allowed-origins: "*"
+  allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS,HEAD
+  allowed-headers: "*"
+  allow-credentials: true
+  max-age: 3600
 
-
+# Swagger disabled by default for production
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
-    enabled: true
-    urls:
-      - url: /v3/api-docs
-        name: API V1
+    enabled: ${SWAGGER_ENABLED:false}
   api-docs:
     path: /v3/api-docs
+    enabled: ${SWAGGER_ENABLED:false}
   default-produces-media-type: application/json
   paths-to-match: /api/**
 
+# Minimal actuator endpoints
 management:
-     endpoints:
-          web:
-               exposure:
-                    include: health,info,metrics,prometheus
-     endpoint:
-          health:
-               show-details: always
-          metrics:
-               enabled: true
-          prometheus:
-               enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      show-details: never
+    metrics:
+      enabled: false
+    prometheus:
+      enabled: true
+
+# Minimal logging for production
+logging:
+  level:
+    root: ERROR
+    pe.edu.vallegrande: WARN
+    org.springframework: ERROR
+    org.mongodb: ERROR
+    org.springframework.web: ERROR
+    reactor: ERROR
+  pattern:
+    console: "%d{HH:mm:ss} %msg%n"
+  logback:
+    rollingpolicy:
+      max-file-size: 1MB
+      max-history: 1
 
 app:
-     name: Structure Microservice
-     description: Microservicio para gestión de estructuras
-     version: 1.0.0
+  name: Water Quality Microservice
+  description: Microservicio para gestión de calidad de agua
+  version: 1.0.0

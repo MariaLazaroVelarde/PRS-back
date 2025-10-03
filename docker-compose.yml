@@ -1,12 +1,26 @@
 version: "3.9"
 
 services:
-  copichat:
+  water-quality-ms:
     image: marianayeli/vg-ms-water-quality:latest
     ports:
       - "8087:8087"
     environment:
-      - DATABASE_URL=mongodb+srv://sistemajass:<db_password>@sistemajass.jn6cpoz.mongodb.net/?retryWrites=true&w=majority&appName=SistemaJass
       - DATABASE_USERNAME=sistemajass
       - DATABASE_PASSWORD=ZC7O1Ok40SwkfEje
       - PORT=8087
+      - SWAGGER_ENABLED=false
+      - JAVA_OPTS=-Xms128m -Xmx384m -XX:+UseG1GC -XX:+UseStringDeduplication
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8087/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 450M
+        reservations:
+          memory: 200M

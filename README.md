@@ -1,14 +1,12 @@
-# MS-Calidad-Agua-back
+# MS-Calidad-Agua
 
 ## 📋 Descripción
-Microservicio de gestión de calidad del agua desarrollado con Spring Boot WebFlux para el sistema JASS (Juntas Administradoras de Servicios de Saneamiento). Proporciona APIs RESTful para el manejo reactivo de registros de calidad, pruebas, parámetros, puntos de muestreo e incidencias.
+Microservicio de gestión de calidad del agua desarrollado con Spring Boot WebFlux para el sistema JASS.
 
 ## 🚀 Tecnologías
-- **Framework**: Spring Boot 3.4.5 con WebFlux (Reactive)
-- **Base de Datos**: MongoDB (Reactive)
+- **Framework**: Spring Boot 3.4.5 con WebFlux
+- **Base de Datos**: MongoDB
 - **Seguridad**: OAuth2 Resource Server
-- **Documentación**: OpenAPI 3 (Swagger)
-- **Monitoreo**: Prometheus + Micrometer
 - **Java**: 17
 - **Build**: Maven
 
@@ -108,14 +106,25 @@ Este microservicio actualmente **NO consume APIs externas**. Opera de forma inde
 - **CORS**: Habilitado para todos los orígenes (*)
 
 ## 🚀 Cómo Ejecutar
+
+### Desarrollo
 ```bash
-# Compilar
 mvn clean package -DskipTests
+java -jar target/ms_water_quality-*.jar
+```
 
-# Ejecutar
-java -jar target/vg-ms-water-quality-*.jar
-
+### Producción
+```bash
 # Docker
 docker build -t vg-ms-water-quality .
-docker run -p 8085:8085 vg-ms-water-quality
+docker run -p 8087:8087 vg-ms-water-quality
+
+# Docker Compose
+docker-compose up -d
 ```
+
+## 🔧 Configuración de Producción
+- Usar perfil `prod`: `-Dspring.profiles.active=prod`
+- Swagger deshabilitado por defecto en producción
+- Logs optimizados para menor consumo
+- Límites de memoria configurados

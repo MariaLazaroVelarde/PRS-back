@@ -26,8 +26,7 @@ public class QualityTestServiceImpl implements QualityTestService {
     /** GET /api/admin/quality/tests */
     @Override
     public Flux<QualityTest> getAll() {
-        return qualityTestRepository.findAll()
-                .doOnNext(test -> log.info("Quality test found: {}", test.getId()));
+        return qualityTestRepository.findAll();
     }
 
     /** GET /api/admin/quality/tests/{id} */

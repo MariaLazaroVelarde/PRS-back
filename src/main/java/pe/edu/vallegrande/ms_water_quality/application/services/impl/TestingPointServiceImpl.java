@@ -26,22 +26,19 @@ public class TestingPointServiceImpl implements TestingPointService {
     /** GET /sampling-points */
     @Override
     public Flux<TestingPoint> getAll() {
-        return repository.findAll()
-                .doOnNext(tp -> log.info("Retrieved point: {}", tp.getId()));
+        return repository.findAll();
     }
 
     /** GET /sampling-points/active */
     @Override
     public Flux<TestingPoint> getAllActive() {
-        return repository.findAllByStatus(Constants.ACTIVE.name())
-                .doOnNext(tp -> log.info("Active point: {}", tp.getId()));
+        return repository.findAllByStatus(Constants.ACTIVE.name());
     }
 
     /** GET /sampling-points/inactive */
     @Override
     public Flux<TestingPoint> getAllInactive() {
-        return repository.findAllByStatus(Constants.INACTIVE.name())
-                .doOnNext(tp -> log.info("Inactive point: {}", tp.getId()));
+        return repository.findAllByStatus(Constants.INACTIVE.name());
     }
 
     /** GET /sampling-points/{id} */
@@ -66,7 +63,6 @@ public class TestingPointServiceImpl implements TestingPointService {
 
         return generateNextCode()
                 .flatMap(nextCode -> {
-                    log.info("Generated next code: {}", nextCode);
                     TestingPoint point = new TestingPoint();
                     point.setOrganizationId(request.getOrganizationId());
                     point.setPointCode(nextCode);
@@ -86,7 +82,6 @@ public class TestingPointServiceImpl implements TestingPointService {
                     point.setUpdatedAt(LocalDateTime.now());
 
                     return repository.save(point)
-                            .doOnSuccess(saved -> log.info("Saved point: {}", saved.getId()))
                             .map(this::mapToResponse);
                 });
     }
@@ -108,8 +103,6 @@ public class TestingPointServiceImpl implements TestingPointService {
                             existing.setLocationDescription(updatedPoint.getLocationDescription());
                             existing.setCoordinates(updatedPoint.getCoordinates());
                             existing.setUpdatedAt(LocalDateTime.now());
-
-                            log.info("Updated point {} with new code {}", id, newCode);
                             return repository.save(existing);
                         }));
     }
@@ -147,7 +140,6 @@ public class TestingPointServiceImpl implements TestingPointService {
                 .flatMap(point -> {
                     point.setStatus(status);
                     point.setUpdatedAt(LocalDateTime.now());
-                    log.info("Changed status of {} to {}", id, status);
                     return repository.save(point);
                 });
     }

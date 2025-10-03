@@ -23,8 +23,7 @@ public class DailyRecordServiceImpl implements DailyRecordService {
 
         @Override
         public Flux<DailyRecord> getAll() {
-                return repository.findAll()
-                                .doOnNext(record -> log.info("Record found: {}", record));
+                return repository.findAll();
         }
 
         @Override
@@ -62,9 +61,7 @@ public class DailyRecordServiceImpl implements DailyRecordService {
                                         record.setAmount(request.getAmount());
                                         record.setCreatedAt(LocalDateTime.now());
 
-                                        return repository.save(record)
-                                                        .doOnSuccess(savedRecord -> log.info("Record saved: {}",
-                                                                        savedRecord));
+                                        return repository.save(record);
                                 });
         }
 
@@ -96,10 +93,7 @@ public class DailyRecordServiceImpl implements DailyRecordService {
                                         return generateNextCode(request.getRecordType())
                                                         .flatMap(nextCode -> {
                                                                 existing.setRecordCode(nextCode);
-                                                                return repository.save(existing)
-                                                                                .doOnSuccess(updatedRecord -> log.info(
-                                                                                                "Record updated with regenerated code: {}",
-                                                                                                updatedRecord));
+                                                                return repository.save(existing);
                                                         });
                                 });
         }
@@ -114,7 +108,6 @@ public class DailyRecordServiceImpl implements DailyRecordService {
                                 .flatMap(existing -> {
                                         existing.setDeletedAt(LocalDateTime.now());
                                         return repository.save(existing)
-                                                        .doOnSuccess(r -> log.info("Record logically deleted: {}", id))
                                                         .then();
                                 });
         }
@@ -126,8 +119,7 @@ public class DailyRecordServiceImpl implements DailyRecordService {
                                                 HttpStatus.NOT_FOUND.value(),
                                                 "Record not found",
                                                 "The daily record with id " + id + " was not found")))
-                                .flatMap(repository::delete)
-                                .doOnSuccess(aVoid -> log.info("Record physically deleted: {}", id));
+                                .flatMap(repository::delete);
         }
 
         @Override
@@ -146,9 +138,7 @@ public class DailyRecordServiceImpl implements DailyRecordService {
                                         }
 
                                         existing.setDeletedAt(null);
-                                        return repository.save(existing)
-                                                        .doOnSuccess(restoredRecord -> log.info("Record restored: {}",
-                                                                        restoredRecord));
+                                        return repository.save(existing);
                                 });
         }
 
