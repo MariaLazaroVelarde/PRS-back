@@ -3,18 +3,19 @@ package pe.edu.vallegrande.ms_water_quality.application.services;
 import pe.edu.vallegrande.ms_water_quality.domain.models.TestingPoint;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.request.TestingPointCreateRequest;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.TestingPointResponse;
+import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.enriched.TestingPointEnrichedResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface TestingPointService {
 
-    Flux<TestingPoint> getAll();
+    Flux<TestingPointEnrichedResponse> getAll();
 
-    Flux<TestingPoint> getAllActive();
+    Flux<TestingPointEnrichedResponse> getAllActive();
 
-    Flux<TestingPoint> getAllInactive();
+    Flux<TestingPointEnrichedResponse> getAllInactive();
 
-    Mono<TestingPoint> getById(String id);
+    Mono<TestingPointEnrichedResponse> getById(String id);
 
     Mono<TestingPointResponse> save(TestingPointCreateRequest request);
 
@@ -22,7 +23,7 @@ public interface TestingPointService {
 
     Mono<Void> delete(String id);
 
-    Mono<TestingPoint> activate(String id);
+    Mono<TestingPointEnrichedResponse> activate(String id);
 
-    Mono<TestingPoint> deactivate(String id);
+    Mono<TestingPointEnrichedResponse> deactivate(String id);
 }

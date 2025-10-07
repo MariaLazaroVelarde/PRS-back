@@ -1,130 +1,253 @@
-# MS-Calidad-Agua
+# Microservicio de Calidad del Agua (ms-water-quality) - API Endpoints
 
-## 📋 Descripción
-Microservicio de gestión de calidad del agua desarrollado con Spring Boot WebFlux para el sistema JASS.
+Este documento describe los endpoints disponibles en el microservicio de Calidad del Agua, incluyendo ejemplos de cómo interactuar con ellos para insertar y editar entidades.
 
-## 🚀 Tecnologías
-- **Framework**: Spring Boot 3.4.5 con WebFlux
-- **Base de Datos**: MongoDB
-- **Seguridad**: OAuth2 Resource Server
-- **Java**: 17
-- **Build**: Maven
+La ruta base para todos los endpoints es `/api/admin/quality`.
 
-## 📡 Endpoints Disponibles
+---
 
-### 🔄 Daily Records (Registros Diarios)
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/api/v2/dailyrecords` | Obtener todos los registros diarios |
-| `GET` | `/api/v2/dailyrecords/{id}` | Obtener registro por ID |
-| `POST` | `/api/v2/dailyrecords` | Crear nuevo registro diario |
-| `PUT` | `/api/v2/dailyrecords/{id}` | Actualizar registro diario |
-| `DELETE` | `/api/v2/dailyrecords/{id}` | Eliminación lógica del registro |
-| `DELETE` | `/api/v2/dailyrecords/{id}/physical` | Eliminación física del registro |
-| `PUT` | `/api/v2/dailyrecords/{id}/restore` | Restaurar registro eliminado |
+## 1. Testing Points (Puntos de Muestreo)
 
-### 🧪 Quality Tests (Pruebas de Calidad)
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/api/v2/qualitytests` | Obtener todas las pruebas de calidad |
-| `GET` | `/api/v2/qualitytests/{id}` | Obtener prueba por ID |
-| `POST` | `/api/v2/qualitytests` | Crear nueva prueba de calidad |
-| `PUT` | `/api/v2/qualitytests/{id}` | Actualizar prueba de calidad |
-| `DELETE` | `/api/v2/qualitytests/{id}` | Eliminación lógica de la prueba |
-| `DELETE` | `/api/v2/qualitytests/{id}/physical` | Eliminación física de la prueba |
-| `PUT` | `/api/v2/qualitytests/{id}/restore` | Restaurar prueba eliminada |
+**Ruta Base:** `/api/admin/quality/sampling-points`
 
-### ⚗️ Quality Parameters (Parámetros de Calidad)
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/api/v2/qualityparameters` | Obtener todos los parámetros |
-| `GET` | `/api/v2/qualityparameters/active` | Obtener parámetros activos |
-| `GET` | `/api/v2/qualityparameters/inactive` | Obtener parámetros inactivos |
-| `GET` | `/api/v2/qualityparameters/{id}` | Obtener parámetro por ID |
-| `POST` | `/api/v2/qualityparameters` | Crear nuevo parámetro |
-| `PUT` | `/api/v2/qualityparameters/{id}` | Actualizar parámetro |
-| `DELETE` | `/api/v2/qualityparameters/{id}` | Eliminar parámetro |
-| `PATCH` | `/api/v2/qualityparameters/{id}/activate` | Activar parámetro |
-| `PATCH` | `/api/v2/qualityparameters/{id}/deactivate` | Desactivar parámetro |
+### Endpoints
 
-### 📍 Testing Points (Puntos de Muestreo)
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/api/v2/testingpoints` | Obtener todos los puntos de muestreo |
-| `GET` | `/api/v2/testingpoints/active` | Obtener puntos activos |
-| `GET` | `/api/v2/testingpoints/inactive` | Obtener puntos inactivos |
-| `GET` | `/api/v2/testingpoints/{id}` | Obtener punto por ID |
-| `POST` | `/api/v2/testingpoints` | Crear nuevo punto de muestreo |
-| `PUT` | `/api/v2/testingpoints/{id}` | Actualizar punto de muestreo |
-| `DELETE` | `/api/v2/testingpoints/{id}` | Eliminar punto de muestreo |
-| `PATCH` | `/api/v2/testingpoints/{id}/activate` | Activar punto |
-| `PATCH` | `/api/v2/testingpoints/{id}/deactivate` | Desactivar punto |
+*   **`GET /api/admin/quality/sampling-points`**: Obtener todos los puntos de muestreo (enriquecidos).
+*   **`GET /api/admin/quality/sampling-points/active`**: Obtener todos los puntos de muestreo activos (enriquecidos).
+*   **`GET /api/admin/quality/sampling-points/inactive`**: Obtener todos los puntos de muestreo inactivos (enriquecidos).
+*   **`GET /api/admin/quality/sampling-points/{id}`**: Obtener un punto de muestreo por ID (enriquecido).
+*   **`POST /api/admin/quality/sampling-points`**: Crear un nuevo punto de muestreo.
+*   **`PUT /api/admin/quality/sampling-points/{id}`**: Actualizar un punto de muestreo existente.
+*   **`DELETE /api/admin/quality/sampling-points/{id}`**: Eliminar lógicamente un punto de muestreo.
+*   **`PATCH /api/admin/quality/sampling-points/activate/{id}`**: Activar un punto de muestreo.
+*   **`PATCH /api/admin/quality/sampling-points/deactivate/{id}`**: Desactivar un punto de muestreo.
 
-### 🚨 Quality Incidents (Incidencias de Calidad)
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/api/v2/qualityincidents` | Obtener todas las incidencias |
-| `GET` | `/api/v2/qualityincidents/resolved` | Obtener incidencias resueltas |
-| `GET` | `/api/v2/qualityincidents/unresolved` | Obtener incidencias no resueltas |
-| `GET` | `/api/v2/qualityincidents/{id}` | Obtener incidencia por ID |
-| `POST` | `/api/v2/qualityincidents` | Crear nueva incidencia |
-| `PUT` | `/api/v2/qualityincidents/{id}` | Actualizar incidencia |
-| `DELETE` | `/api/v2/qualityincidents/{id}` | Eliminar incidencia |
+### Ejemplos JSON
 
-### 👥 Users (Usuarios)
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/api/v2/users` | Obtener todos los usuarios |
-| `GET` | `/api/v2/users/active` | Obtener usuarios activos |
-| `GET` | `/api/v2/users/inactive` | Obtener usuarios inactivos |
-| `GET` | `/api/v2/users/{id}` | Obtener usuario por ID |
-| `POST` | `/api/v2/users` | Crear nuevo usuario |
-| `PUT` | `/api/v2/users/{id}` | Actualizar usuario |
-| `DELETE` | `/api/v2/users/{id}` | Eliminar usuario |
-| `PATCH` | `/api/v2/users/{id}/activate` | Activar usuario |
-| `PATCH` | `/api/v2/users/{id}/deactivate` | Desactivar usuario |
+#### **POST /api/admin/quality/sampling-points (Insertar)**
 
-## 🔗 APIs Externas Consumidas
-Este microservicio actualmente **NO consume APIs externas**. Opera de forma independiente con:
-- **Base de Datos**: MongoDB (conexión directa)
-- **Autenticación**: OAuth2 (validación local de tokens)
-- **Métricas**: Prometheus (exposición de métricas internas)
-
-## 📖 Documentación de la API
-- **Swagger UI**: `http://localhost:8085/swagger-ui.html`
-- **OpenAPI JSON**: `http://localhost:8085/v3/api-docs`
-
-## 🏥 Monitoreo y Salud
-- **Health Check**: `GET /actuator/health`
-- **Métricas**: `GET /actuator/metrics`
-- **Prometheus**: `GET /actuator/prometheus`
-
-## 🔧 Configuración
-- **Puerto**: 8085
-- **Base URL**: `/api/v2`
-- **Base de Datos**: MongoDB Atlas
-- **CORS**: Habilitado para todos los orígenes (*)
-
-## 🚀 Cómo Ejecutar
-
-### Desarrollo
-```bash
-mvn clean package -DskipTests
-java -jar target/ms_water_quality-*.jar
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "pointCode": "PT001",
+  "pointName": "Punto de Muestreo Principal",
+  "pointType": "RESERVORIO",
+  "zoneId": "ZN0001",
+  "locationDescription": "Cerca del tanque principal",
+  "street": "Calle Falsa 123",
+  "coordinates": {
+    "latitude": -12.046374,
+    "longitude": -77.042793
+  }
+}
 ```
 
-### Producción
-```bash
-# Docker
-docker build -t vg-ms-water-quality .
-docker run -p 8087:8087 vg-ms-water-quality
+#### **PUT /api/admin/quality/sampling-points/{id} (Editar)**
 
-# Docker Compose
-docker-compose up -d
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "pointCode": "PT001",
+  "pointName": "Punto de Muestreo Principal Actualizado",
+  "pointType": "RED_DISTRIBUCION",
+  "zoneId": "ZN0002",
+  "locationDescription": "Cerca de la estación de bombeo",
+  "street": "Avenida Siempre Viva 742",
+  "coordinates": {
+    "latitude": -12.046374,
+    "longitude": -77.042793
+  },
+  "status": "ACTIVE"
+}
 ```
 
-## 🔧 Configuración de Producción
-- Usar perfil `prod`: `-Dspring.profiles.active=prod`
-- Swagger deshabilitado por defecto en producción
-- Logs optimizados para menor consumo
-- Límites de memoria configurados
+---
+
+## 2. Quality Parameters (Parámetros de Calidad)
+
+**Ruta Base:** `/api/admin/quality/parameters`
+
+### Endpoints
+
+*   **`GET /api/admin/quality/parameters`**: Obtener todos los parámetros de calidad (enriquecidos).
+*   **`GET /api/admin/quality/parameters/active`**: Obtener todos los parámetros de calidad activos (enriquecidos).
+*   **`GET /api/admin/quality/parameters/inactive`**: Obtener todos los parámetros de calidad inactivos (enriquecidos).
+*   **`GET /api/admin/quality/parameters/{id}`**: Obtener un parámetro de calidad por ID (enriquecido).
+*   **`POST /api/admin/quality/parameters`**: Crear un nuevo parámetro de calidad.
+*   **`PUT /api/admin/quality/parameters/{id}`**: Actualizar un parámetro de calidad existente.
+*   **`DELETE /api/admin/quality/parameters/{id}`**: Eliminar un parámetro de calidad.
+*   **`PATCH /api/admin/quality/parameters/activate/{id}`**: Activar un parámetro de calidad.
+*   **`PATCH /api/admin/quality/parameters/deactivate/{id}`**: Desactivar un parámetro de calidad.
+
+### Ejemplos JSON
+
+#### **POST /api/admin/quality/parameters (Insertar)**
+
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "parameterCode": "PH001",
+  "parameterName": "pH del Agua",
+  "unitOfMeasure": "pH",
+  "minAcceptable": 6.5,
+  "maxAcceptable": 8.5,
+  "optimalRange": {
+    "min": 7.0,
+    "max": 7.8
+  },
+  "testFrequency": "DAILY"
+}
+```
+
+#### **PUT /api/admin/quality/parameters/{id} (Editar)**
+
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "parameterCode": "PH001",
+  "parameterName": "pH del Agua Potable",
+  "unitOfMeasure": "pH",
+  "minAcceptable": 6.8,
+  "maxAcceptable": 8.2,
+  "optimalRange": {
+    "min": 7.2,
+    "max": 7.6
+  },
+  "testFrequency": "WEEKLY",
+  "status": "ACTIVE"
+}
+```
+
+---
+
+## 3. Quality Tests (Pruebas de Calidad)
+
+**Ruta Base:** `/api/admin/quality/tests`
+
+### Endpoints
+
+*   **`GET /api/admin/quality/tests`**: Obtener todas las pruebas de calidad.
+*   **`GET /api/admin/quality/tests/{id}`**: Obtener una prueba de calidad por ID (enriquecida).
+*   **`POST /api/admin/quality/tests`**: Crear una nueva prueba de calidad.
+*   **`PUT /api/admin/quality/tests/{id}`**: Actualizar una prueba de calidad existente.
+*   **`DELETE /api/admin/quality/tests/{id}`**: Eliminar lógicamente una prueba de calidad.
+*   **`DELETE /api/admin/quality/tests/physical/{id}`**: Eliminar físicamente una prueba de calidad.
+*   **`PATCH /api/admin/quality/tests/restore/{id}`**: Restaurar una prueba de calidad eliminada lógicamente.
+
+### Ejemplos JSON
+
+#### **POST /api/admin/quality/tests (Insertar)**
+
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "testCode": "ANL001",
+  "testingPointId": "68c08b7163293e2fe5fcdb1a",
+  "testDate": "2025-10-06T10:00:00",
+  "testType": "FISICOQUIMICO",
+  "testedByUserId": "68c08b7163293e2fe5fcdb1a",
+  "weatherConditions": "Soleado",
+  "waterTemperature": 25.5,
+  "generalObservations": "Agua clara, sin olor",
+  "status": "COMPLETED",
+  "results": [
+    {
+      "parameterId": "PH001",
+      "parameterCode": "PH001",
+      "measuredValue": 7.5,
+      "unit": "pH",
+      "status": "ACCEPTABLE",
+      "observations": "Dentro del rango óptimo"
+    },
+    {
+      "parameterId": "TURB001",
+      "parameterCode": "TURB001",
+      "measuredValue": 0.8,
+      "unit": "NTU",
+      "status": "ACCEPTABLE",
+      "observations": "Baja turbidez"
+    }
+  ]
+}
+```
+
+#### **PUT /api/admin/quality/tests/{id} (Editar)**
+
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "testCode": "ANL001",
+  "testingPointId": "68c08b7163293e2fe5fcdb1a",
+  "testDate": "2025-10-06T11:30:00",
+  "testType": "BACTERIOLOGICO",
+  "testedByUserId": "68c0a4ab07fa2d47448b530a",
+  "weatherConditions": "Nublado",
+  "waterTemperature": 24.0,
+  "generalObservations": "Agua ligeramente turbia",
+  "status": "PENDING",
+  "results": [
+    {
+      "parameterId": "PH001",
+      "parameterCode": "PH001",
+      "measuredValue": 7.2,
+      "unit": "pH",
+      "status": "ACCEPTABLE",
+      "observations": "Rango aceptable"
+    }
+  ]
+}
+```
+
+---
+
+## 4. Daily Records (Registros Diarios)
+
+**Ruta Base:** `/api/admin/quality/daily-records`
+
+### Endpoints
+
+*   **`GET /api/admin/quality/daily-records`**: Obtener todos los registros diarios (enriquecidos).
+*   **`GET /api/admin/quality/daily-records/{id}`**: Obtener un registro diario por ID (enriquecido).
+*   **`POST /api/admin/quality/daily-records`**: Crear un nuevo registro diario.
+*   **`PUT /api/admin/quality/daily-records/{id}`**: Actualizar un registro diario existente.
+*   **`DELETE /api/admin/quality/daily-records/{id}`**: Eliminar lógicamente un registro diario.
+*   **`DELETE /api/admin/quality/daily-records/physical/{id}`**: Eliminar físicamente un registro diario.
+*   **`PATCH /api/admin/quality/daily-records/restore/{id}`**: Restaurar un registro diario eliminado lógicamente.
+
+### Ejemplos JSON
+
+#### **POST /api/admin/quality/daily-records (Insertar)**
+
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "recordCode": "DR001",
+  "testingPointIds": ["68c08b7163293e2fe5fcdb1a"],
+  "recordDate": "2025-10-06T08:00:00",
+  "level": 1.5,
+  "acceptable": true,
+  "actionRequired": false,
+  "recordedByUserId": "68c08b7163293e2fe5fcdb1a",
+  "observations": "Nivel de cloro dentro de los límites",
+  "amount": 0.5,
+  "recordType": "CLORO"
+}
+```
+
+#### **PUT /api/admin/quality/daily-records/{id} (Editar)**
+
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "recordCode": "DR001",
+  "testingPointIds": ["68c08b7163293e2fe5fcdb1a"],
+  "recordDate": "2025-10-06T09:30:00",
+  "level": 1.8,
+  "acceptable": false,
+  "actionRequired": true,
+  "recordedByUserId": "68c0a4ab07fa2d47448b530a",
+  "observations": "Nivel de cloro bajo, requiere acción inmediata",
+  "amount": 0.7,
+  "recordType": "CLORO"
+}
+```

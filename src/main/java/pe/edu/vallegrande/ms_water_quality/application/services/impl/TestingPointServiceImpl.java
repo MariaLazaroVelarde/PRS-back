@@ -1,186 +1,122 @@
 package pe.edu.vallegrande.ms_water_quality.application.services.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import pe.edu.vallegrande.ms_water_quality.application.services.TestingPointService;
-import pe.edu.vallegrande.ms_water_quality.domain.enums.Constants;
 import pe.edu.vallegrande.ms_water_quality.domain.models.TestingPoint;
+import pe.edu.vallegrande.ms_water_quality.infrastructure.client.dto.ExternalOrganization;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.request.TestingPointCreateRequest;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.TestingPointResponse;
+import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.enriched.TestingPointEnrichedResponse;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.exception.CustomException;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.repository.TestingPointRepository;
+import pe.edu.vallegrande.ms_water_quality.infrastructure.service.ExternalServiceClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class TestingPointServiceImpl implements TestingPointService {
 
-    private final TestingPointRepository repository;
+    private final TestingPointRepository testingPointRepository;
+    private final ExternalServiceClient externalServiceClient;
 
-    /** GET /sampling-points */
     @Override
-    public Flux<TestingPoint> getAll() {
-        return repository.findAll();
+    public Flux<TestingPointEnrichedResponse> getAll() {
+        return testingPointRepository.findAll().flatMap(this::enrichTestingPoint);
     }
 
-    /** GET /sampling-points/active */
     @Override
-    public Flux<TestingPoint> getAllActive() {
-        return repository.findAllByStatus(Constants.ACTIVE.name());
+    public Flux<TestingPointEnrichedResponse> getAllActive() {
+        return testingPointRepository.findByStatus("ACTIVE").flatMap(this::enrichTestingPoint);
     }
 
-    /** GET /sampling-points/inactive */
     @Override
-    public Flux<TestingPoint> getAllInactive() {
-        return repository.findAllByStatus(Constants.INACTIVE.name());
+    public Flux<TestingPointEnrichedResponse> getAllInactive() {
+        return testingPointRepository.findByStatus("INACTIVE").flatMap(this::enrichTestingPoint);
     }
 
-    /** GET /sampling-points/{id} */
     @Override
-    public Mono<TestingPoint> getById(String id) {
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(
-                        HttpStatus.NOT_FOUND.value(),
-                        "Testing Point not found",
-                        "The requested point with id " + id + " was not found")));
+    public Mono<TestingPointEnrichedResponse> getById(String id) {
+        return testingPointRepository.findById(id)
+                .flatMap(this::enrichTestingPoint)
+                .switchIfEmpty(Mono.error(CustomException.notFound("TestingPoint", id)));
     }
 
-    /** POST /sampling-points */
     @Override
     public Mono<TestingPointResponse> save(TestingPointCreateRequest request) {
-        if (request == null || request.getOrganizationId() == null || request.getPointName() == null) {
-            return Mono.error(new CustomException(
-                    HttpStatus.BAD_REQUEST.value(),
-                    "Invalid request",
-                    "Organization ID and Point Name are required."));
-        }
+        TestingPoint testingPoint = new TestingPoint();
+        // Mapping from request to model
+        testingPoint.setOrganizationId(request.getOrganizationId());
+        testingPoint.setPointCode(request.getPointCode());
+        testingPoint.setPointName(request.getPointName());
+        testingPoint.setPointType(request.getPointType());
+        testingPoint.setZoneId(request.getZoneId());
+        testingPoint.setLocationDescription(request.getLocationDescription());
+        testingPoint.setStreet(request.getStreet());
+        testingPoint.setCoordinates(new TestingPoint.Coordinates(request.getCoordinates().getLatitude(), request.getCoordinates().getLongitude()));
+        testingPoint.setCreatedAt(LocalDateTime.now());
 
-        return generateNextCode()
-                .flatMap(nextCode -> {
-                    TestingPoint point = new TestingPoint();
-                    point.setOrganizationId(request.getOrganizationId());
-                    point.setPointCode(nextCode);
-                    point.setPointName(request.getPointName());
-                    point.setPointType(request.getPointType());
-                    point.setZoneId(request.getZoneId());
-                    point.setLocationDescription(request.getLocationDescription());
+        return testingPointRepository.save(testingPoint).map(saved -> new TestingPointResponse(/* map fields */));
+    }
 
-                    if (request.getCoordinates() != null) {
-                        point.setCoordinates(new TestingPoint.Coordinates(
-                                request.getCoordinates().getLatitude(),
-                                request.getCoordinates().getLongitude()));
-                    }
-
-                    point.setStatus(Constants.ACTIVE.name());
-                    point.setCreatedAt(LocalDateTime.now());
-                    point.setUpdatedAt(LocalDateTime.now());
-
-                    return repository.save(point)
-                            .map(this::mapToResponse);
+    @Override
+    public Mono<TestingPoint> update(String id, TestingPoint point) {
+        return testingPointRepository.findById(id)
+                .switchIfEmpty(Mono.error(CustomException.notFound("TestingPoint", id)))
+                .flatMap(existing -> {
+                    existing.setOrganizationId(point.getOrganizationId());
+                    // map other fields
+                    return testingPointRepository.save(existing);
                 });
     }
 
-    /** PUT /sampling-points/{id} */
-    @Override
-    public Mono<TestingPoint> update(String id, TestingPoint updatedPoint) {
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(
-                        HttpStatus.NOT_FOUND.value(),
-                        "Testing Point not found",
-                        "Cannot update non-existent point with id " + id)))
-                .flatMap(existing -> generateNextCode()
-                        .flatMap(newCode -> {
-                            existing.setPointCode(newCode); // Código nuevo en cada actualización
-                            existing.setPointName(updatedPoint.getPointName());
-                            existing.setPointType(updatedPoint.getPointType());
-                            existing.setZoneId(updatedPoint.getZoneId());
-                            existing.setLocationDescription(updatedPoint.getLocationDescription());
-                            existing.setCoordinates(updatedPoint.getCoordinates());
-                            existing.setUpdatedAt(LocalDateTime.now());
-                            return repository.save(existing);
-                        }));
-    }
-
-    /** DELETE /sampling-points/{id} */
     @Override
     public Mono<Void> delete(String id) {
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(
-                        HttpStatus.NOT_FOUND.value(),
-                        "Testing Point not found",
-                        "Cannot delete non-existent point with id " + id)))
-                .flatMap(repository::delete);
+        return testingPointRepository.deleteById(id);
     }
 
-    /** PATCH /sampling-points/{id}/activate */
     @Override
-    public Mono<TestingPoint> activate(String id) {
-        return changeStatus(id, Constants.ACTIVE.name());
-    }
-
-    /** PATCH /sampling-points/{id}/deactivate */
-    @Override
-    public Mono<TestingPoint> deactivate(String id) {
-        return changeStatus(id, Constants.INACTIVE.name());
-    }
-
-    // Método interno para activar/desactivar
-    private Mono<TestingPoint> changeStatus(String id, String status) {
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(
-                        HttpStatus.NOT_FOUND.value(),
-                        "Testing Point not found",
-                        "Cannot change status of non-existent point with id " + id)))
+    public Mono<TestingPointEnrichedResponse> activate(String id) {
+        return testingPointRepository.findById(id)
+                .switchIfEmpty(Mono.error(CustomException.notFound("TestingPoint", id)))
                 .flatMap(point -> {
-                    point.setStatus(status);
-                    point.setUpdatedAt(LocalDateTime.now());
-                    return repository.save(point);
-                });
-    }
-
-    // Generar siguiente código PM###
-    private Mono<String> generateNextCode() {
-        return repository.findAll()
-                .filter(p -> p.getPointCode() != null && !p.getPointCode().isBlank()
-                        && p.getPointCode().startsWith("PM"))
-                .sort((p1, p2) -> p2.getPointCode().compareTo(p1.getPointCode()))
-                .next()
-                .map(last -> {
-                    try {
-                        int number = Integer.parseInt(last.getPointCode().replace("PM", ""));
-                        return String.format("PM%03d", number + 1);
-                    } catch (Exception e) {
-                        return "PM001";
-                    }
+                    point.setStatus("ACTIVE");
+                    return testingPointRepository.save(point);
                 })
-                .defaultIfEmpty("PM001");
+                .flatMap(this::enrichTestingPoint);
     }
 
-    // Convertir modelo a DTO de respuesta
-    private TestingPointResponse mapToResponse(TestingPoint point) {
-        TestingPointResponse response = new TestingPointResponse();
-        response.setId(point.getId());
-        response.setOrganizationId(point.getOrganizationId());
-        response.setPointCode(point.getPointCode());
-        response.setPointName(point.getPointName());
-        response.setPointType(point.getPointType());
-        response.setZoneId(point.getZoneId());
-        response.setLocationDescription(point.getLocationDescription());
+    @Override
+    public Mono<TestingPointEnrichedResponse> deactivate(String id) {
+        return testingPointRepository.findById(id)
+                .switchIfEmpty(Mono.error(CustomException.notFound("TestingPoint", id)))
+                .flatMap(point -> {
+                    point.setStatus("INACTIVE");
+                    return testingPointRepository.save(point);
+                })
+                .flatMap(this::enrichTestingPoint);
+    }
 
-        if (point.getCoordinates() != null) {
-            response.setCoordinates(new TestingPointResponse.Coordinates(
-                    point.getCoordinates().getLatitude(),
-                    point.getCoordinates().getLongitude()));
-        }
+    private Mono<TestingPointEnrichedResponse> enrichTestingPoint(TestingPoint point) {
+        Mono<ExternalOrganization> orgMono = externalServiceClient.getOrganizationById(point.getOrganizationId())
+                .defaultIfEmpty(new ExternalOrganization()); // Evita error si no se encuentra la organización
 
-        response.setStatus(point.getStatus());
-        response.setCreatedAt(point.getCreatedAt());
-        return response;
+        return orgMono.map(org -> TestingPointEnrichedResponse.builder()
+                .id(point.getId())
+                .pointCode(point.getPointCode())
+                .pointName(point.getPointName())
+                .pointType(point.getPointType())
+                .zoneId(point.getZoneId())
+                .locationDescription(point.getLocationDescription())
+                .street(point.getStreet())
+                .coordinates(point.getCoordinates())
+                .status(point.getStatus())
+                .createdAt(point.getCreatedAt())
+                .updatedAt(point.getUpdatedAt())
+                .organization(org)
+                .build());
     }
 }

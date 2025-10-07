@@ -7,15 +7,5 @@ import reactor.core.publisher.Flux;
 
 @Repository
 public interface QualityParameterRepository extends ReactiveMongoRepository<QualityParameter, String> {
-
-    Flux<QualityParameter> findAllByStatus(String status);
-
-    // Opcional: buscar por frecuencia de prueba
-    Flux<QualityParameter> findAllByTestFrequency(String testFrequency);
-
-    // Opcional: buscar por organización
-    Flux<QualityParameter> findAllByOrganizationId(String organizationId);
-
-    // Opcional: buscar por código
-    Flux<QualityParameter> findAllByParameterCode(String code);
+    Flux<QualityParameter> findByStatus(String status);
 }

@@ -11,21 +11,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ResponseDto<Object>> handleCustomException(CustomException ex) {
-        ErrorMessage errorMessage = ex.getErrorMessage();
-        ResponseDto<Object> response = new ResponseDto<>(false, errorMessage);
-        return ResponseEntity.status(errorMessage.getErrorCode()).body(response);
+        ErrorMessage error = ex.getErrorMessage();
+        ResponseDto<Object> response = new ResponseDto<>(false, null, error);
+        return ResponseEntity.status(error.getErrorCode()).body(response);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseDto<Object>> handleGenericException(Exception ex) {
         int statusCode = (ex instanceof RuntimeException) ? 500 : 400;
 
-        ErrorMessage errorMessage = new ErrorMessage(
+        ErrorMessage error = new ErrorMessage(
                 statusCode,
                 "Error interno del servidor",
                 ex.getMessage()
         );
-        ResponseDto<Object> response = new ResponseDto<>(false, errorMessage);
+        ResponseDto<Object> response = new ResponseDto<>(false, null, error);
         return ResponseEntity.status(statusCode).body(response);
     }
 

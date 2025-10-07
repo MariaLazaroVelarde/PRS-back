@@ -2,14 +2,14 @@ package pe.edu.vallegrande.ms_water_quality.application.services;
 
 import pe.edu.vallegrande.ms_water_quality.domain.models.QualityTest;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.request.QualityTestCreateRequest;
-import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.QualityTestResponse;
+import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.enriched.QualityTestEnrichedResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface QualityTestService {
     Flux<QualityTest> getAll();
 
-    Mono<QualityTest> getById(String id);
+    Mono<QualityTestEnrichedResponse> getById(String id);
 
     Mono<QualityTest> save(QualityTestCreateRequest request);
 

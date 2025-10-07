@@ -7,14 +7,5 @@ import reactor.core.publisher.Flux;
 
 @Repository
 public interface TestingPointRepository extends ReactiveMongoRepository<TestingPoint, String> {
-
-    Flux<TestingPoint> findAllByStatus(String status);
-    
-    // Puedes agregar más métodos si necesitas búsquedas por zoneId, organizationId, etc.
-    Flux<TestingPoint> findAllByZoneId(String zoneId);
-
-    Flux<TestingPoint> findAllByOrganizationId(String organizationId);
-
-    Object findByPointCode(String string);
-
+    Flux<TestingPoint> findByStatus(String status);
 }

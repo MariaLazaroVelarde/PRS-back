@@ -6,9 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import pe.edu.vallegrande.ms_water_quality.application.services.QualityTestService;
 import pe.edu.vallegrande.ms_water_quality.domain.models.QualityTest;
+import pe.edu.vallegrande.ms_water_quality.infrastructure.client.dto.ExternalUser;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.request.QualityTestCreateRequest;
+import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.enriched.QualityTestEnrichedResponse;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.exception.CustomException;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.repository.QualityTestRepository;
+import pe.edu.vallegrande.ms_water_quality.infrastructure.service.ExternalServiceClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 public class QualityTestServiceImpl implements QualityTestService {
 
     private final QualityTestRepository qualityTestRepository;
+    private final ExternalServiceClient externalServiceClient;
 
     /** GET /api/admin/quality/tests */
     @Override
@@ -31,12 +35,32 @@ public class QualityTestServiceImpl implements QualityTestService {
 
     /** GET /api/admin/quality/tests/{id} */
     @Override
-    public Mono<QualityTest> getById(String id) {
+    public Mono<QualityTestEnrichedResponse> getById(String id) {
         return qualityTestRepository.findById(id)
-                .switchIfEmpty(Mono.error(new CustomException(
-                        HttpStatus.NOT_FOUND.value(),
-                        "Quality test not found",
-                        "No quality test found with id " + id)));
+                .switchIfEmpty(Mono.error(CustomException.notFound("QualityTest", id)))
+                .flatMap(this::enrichQualityTest);
+    }
+
+    private Mono<QualityTestEnrichedResponse> enrichQualityTest(QualityTest test) {
+        Mono<ExternalUser> userMono = externalServiceClient.getAdminsByOrganization(test.getOrganizationId())
+                .filter(user -> user.getId().equals(test.getTestedByUserId()))
+                .next();
+
+        return userMono.map(user -> QualityTestEnrichedResponse.builder()
+                .id(test.getId())
+                .testCode(test.getTestCode())
+                .testingPointId(test.getTestingPointId())
+                .testDate(test.getTestDate())
+                .testType(test.getTestType())
+                .weatherConditions(test.getWeatherConditions())
+                .waterTemperature(test.getWaterTemperature())
+                .generalObservations(test.getGeneralObservations())
+                .status(test.getStatus())
+                .results(test.getResults())
+                .createdAt(test.getCreatedAt())
+                .testedByUser(user)
+                .organization(user.getOrganization())
+                .build());
     }
 
     /** POST /api/admin/quality/tests */

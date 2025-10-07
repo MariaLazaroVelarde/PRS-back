@@ -1,23 +1,23 @@
 package pe.edu.vallegrande.ms_water_quality.application.services;
 
-import pe.edu.vallegrande.ms_water_quality.domain.models.DailyRecord;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.request.DailyRecordCreateRequest;
+import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.enriched.DailyRecordEnrichedResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface DailyRecordService {
-    Flux<DailyRecord> getAll();
+    Flux<DailyRecordEnrichedResponse> getAll();
 
-    Mono<DailyRecord> getById(String id);
+    Mono<DailyRecordEnrichedResponse> getById(String id);
 
-    Mono<DailyRecord> save(DailyRecordCreateRequest request);
+    Mono<DailyRecordEnrichedResponse> save(DailyRecordCreateRequest request);
 
-    Mono<DailyRecord> update(String id, DailyRecordCreateRequest request);
+    Mono<DailyRecordEnrichedResponse> update(String id, DailyRecordCreateRequest request);
 
     Mono<Void> delete(String id);
 
     Mono<Void> deletePhysically(String id);
 
-    Mono<DailyRecord> restore(String id);
+    Mono<DailyRecordEnrichedResponse> restore(String id);
 
 }
