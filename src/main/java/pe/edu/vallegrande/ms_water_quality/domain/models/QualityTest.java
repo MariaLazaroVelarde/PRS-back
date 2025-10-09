@@ -22,7 +22,7 @@ public class QualityTest {
 
     private String organizationId;
     private String testCode;
-    private String testingPointId;
+    private List<String> testingPointId;  
     private LocalDateTime testDate;
     private String testType;
     private String testedByUserId;
@@ -47,4 +47,3 @@ public class QualityTest {
         private String observations;
     }
 }
-

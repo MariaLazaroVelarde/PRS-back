@@ -3,7 +3,6 @@ package pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pe.edu.vallegrande.ms_water_quality.domain.models.TestingPoint;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,7 +15,7 @@ public class QualityTestResponse {
     private String id;
     private String organizationId;
     private String testCode;
-    private String testingPointId;
+    private List<String> testingPointId; // ← Fixed: changed from String to List<String>
 
     private LocalDateTime testDate;
     private String testType;

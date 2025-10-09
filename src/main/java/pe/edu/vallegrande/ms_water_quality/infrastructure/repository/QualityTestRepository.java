@@ -11,12 +11,12 @@ public interface QualityTestRepository extends ReactiveMongoRepository<QualityTe
     // Obtener todas las pruebas por organización
     Flux<QualityTest> findAllByOrganizationId(String organizationId);
 
-    // Obtener pruebas por punto de muestreo
-    Flux<QualityTest> findAllByTestingPointId(String testingPointId);
-
     // Obtener pruebas por tipo (RUTINARIO, ESPECIAL, etc.)
     Flux<QualityTest> findAllByTestType(String testType);
 
     // Obtener pruebas por estado (COMPLETED, etc.)
     Flux<QualityTest> findAllByStatus(String status);
+    
+    // Organization-based methods
+    Flux<QualityTest> findByOrganizationIdAndStatus(String organizationId, String status);
 }

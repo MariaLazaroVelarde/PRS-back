@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pe.edu.vallegrande.ms_water_quality.domain.models.TestingPoint;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.client.dto.ExternalOrganization;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.client.dto.ExternalUser;
 
@@ -18,7 +19,7 @@ public class DailyRecordEnrichedResponse {
 
     private String id;
     private String recordCode;
-    private List<String> testingPointIds;
+    private List<TestingPoint> testingPoints;  // Lista completa de TestingPoints
     private LocalDateTime recordDate;
     private Double level;
     private boolean acceptable;

@@ -18,22 +18,22 @@ public class TestingPoint {
     @Id
     private String id;
 
-    @Field("organization_id")
+    @Field("organizationId")
     private String organizationId;
 
-    @Field("point_code")
+    @Field("pointCode")
     private String pointCode;
 
-    @Field("point_name")
+    @Field("pointName")
     private String pointName;
 
-    @Field("point_type")
+    @Field("pointType")
     private String pointType; // Ej: RESERVORIO, RED_DISTRIBUCION, DOMICILIO
 
-    @Field("zone_id")
+    @Field("zoneId")
     private String zoneId;
 
-    @Field("location_description")
+    @Field("locationDescription")
     private String locationDescription;
 
     @Field("street")

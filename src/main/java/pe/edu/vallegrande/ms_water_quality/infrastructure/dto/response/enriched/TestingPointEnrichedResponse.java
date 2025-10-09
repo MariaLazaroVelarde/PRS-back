@@ -27,5 +27,5 @@ public class TestingPointEnrichedResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private ExternalOrganization organization;
+    private ExternalOrganization organizationId;
 }

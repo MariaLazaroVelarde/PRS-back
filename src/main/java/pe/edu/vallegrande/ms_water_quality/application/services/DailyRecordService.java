@@ -19,5 +19,8 @@ public interface DailyRecordService {
     Mono<Void> deletePhysically(String id);
 
     Mono<DailyRecordEnrichedResponse> restore(String id);
-
+    
+    // Organization-based methods
+    Flux<DailyRecordEnrichedResponse> getAllByOrganization(String organizationId);
+    Mono<DailyRecordEnrichedResponse> getByIdAndOrganization(String id, String organizationId);
 }

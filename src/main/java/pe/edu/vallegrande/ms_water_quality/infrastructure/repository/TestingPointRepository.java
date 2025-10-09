@@ -8,4 +8,6 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface TestingPointRepository extends ReactiveMongoRepository<TestingPoint, String> {
     Flux<TestingPoint> findByStatus(String status);
+    Flux<TestingPoint> findByOrganizationId(String organizationId);
+    Flux<TestingPoint> findByOrganizationIdAndStatus(String organizationId, String status);
 }

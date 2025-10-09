@@ -11,5 +11,7 @@ public interface DailyRecordRepository extends ReactiveMongoRepository<DailyReco
     Flux<DailyRecord> findAllByOrganizationId(String organizationId);
 
     Flux<DailyRecord> findByRecordTypeOrderByRecordCodeDesc(String recordType);
-
+    
+    // Organization-based methods
+    Flux<DailyRecord> findByOrganizationIdAndRecordType(String organizationId, String recordType);
 }

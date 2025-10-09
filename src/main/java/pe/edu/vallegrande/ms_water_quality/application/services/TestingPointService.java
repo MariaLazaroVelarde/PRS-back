@@ -26,4 +26,10 @@ public interface TestingPointService {
     Mono<TestingPointEnrichedResponse> activate(String id);
 
     Mono<TestingPointEnrichedResponse> deactivate(String id);
+    
+    // Organization-based methods
+    Flux<TestingPointEnrichedResponse> getAllByOrganization(String organizationId);
+    Flux<TestingPointEnrichedResponse> getAllActiveByOrganization(String organizationId);
+    Flux<TestingPointEnrichedResponse> getAllInactiveByOrganization(String organizationId);
+    Mono<TestingPointEnrichedResponse> getByIdAndOrganization(String id, String organizationId);
 }

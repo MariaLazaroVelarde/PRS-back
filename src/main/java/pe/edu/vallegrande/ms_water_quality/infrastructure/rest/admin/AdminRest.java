@@ -3,24 +3,18 @@ package pe.edu.vallegrande.ms_water_quality.infrastructure.rest.admin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.vallegrande.ms_water_quality.application.services.DailyRecordService;
-import pe.edu.vallegrande.ms_water_quality.application.services.QualityParameterService;
 import pe.edu.vallegrande.ms_water_quality.application.services.QualityTestService;
 import pe.edu.vallegrande.ms_water_quality.application.services.TestingPointService;
-import pe.edu.vallegrande.ms_water_quality.domain.models.DailyRecord;
-import pe.edu.vallegrande.ms_water_quality.domain.models.QualityParameter;
-import pe.edu.vallegrande.ms_water_quality.domain.models.QualityTest;
 import pe.edu.vallegrande.ms_water_quality.domain.models.TestingPoint;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.ResponseDto;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.request.DailyRecordCreateRequest;
-import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.request.QualityParameterCreateRequest;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.request.QualityTestCreateRequest;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.request.TestingPointCreateRequest;
-import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.QualityParameterResponse;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.TestingPointResponse;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.enriched.DailyRecordEnrichedResponse;
-import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.enriched.QualityParameterEnrichedResponse;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.enriched.QualityTestEnrichedResponse;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.enriched.TestingPointEnrichedResponse;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.exception.CustomException;
@@ -31,10 +25,10 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/quality")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminRest {
 
     private final TestingPointService testingPointService;
-    private final QualityParameterService qualityParameterService;
     private final QualityTestService qualityTestService;
     private final DailyRecordService dailyRecordService;
 
@@ -95,67 +89,10 @@ public class AdminRest {
 
     // #endregion
 
-    // #region Quality Parameters
-
-    @GetMapping("/parameters")
-    public Mono<ResponseDto<List<QualityParameterEnrichedResponse>>> getAllParameters() {
-        return qualityParameterService.getAll().collectList().map(list -> new ResponseDto<>(true, list, null));
-    }
-
-    @GetMapping("/parameters/active")
-    public Mono<ResponseDto<List<QualityParameterEnrichedResponse>>> getAllActiveParameters() {
-        return qualityParameterService.getAllActive().collectList().map(list -> new ResponseDto<>(true, list, null));
-    }
-
-    @GetMapping("/parameters/inactive")
-    public Mono<ResponseDto<List<QualityParameterEnrichedResponse>>> getAllInactiveParameters() {
-        return qualityParameterService.getAllInactive().collectList().map(list -> new ResponseDto<>(true, list, null));
-    }
-
-    @GetMapping("/parameters/{id}")
-    public Mono<ResponseDto<QualityParameterEnrichedResponse>> getParameterById(@PathVariable String id) {
-        return qualityParameterService.getById(id)
-                .map(data -> new ResponseDto<>(true, data, null))
-                .switchIfEmpty(Mono.error(CustomException.notFound("QualityParameter", id)));
-    }
-
-    @PostMapping("/parameters")
-    public Mono<ResponseEntity<ResponseDto<QualityParameterResponse>>> saveParameter(@RequestBody QualityParameterCreateRequest request) {
-        return qualityParameterService.save(request).map(data -> ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDto<>(true, data, null)));
-    }
-
-    @PutMapping("/parameters/{id}")
-    public Mono<ResponseDto<QualityParameter>> updateParameter(@PathVariable String id, @RequestBody QualityParameter parameter) {
-        return qualityParameterService.update(id, parameter)
-                .map(data -> new ResponseDto<>(true, data, null))
-                .switchIfEmpty(Mono.error(CustomException.notFound("QualityParameter", id)));
-    }
-
-    @DeleteMapping("/parameters/{id}")
-    public Mono<ResponseDto<Void>> deleteParameter(@PathVariable String id) {
-        return qualityParameterService.delete(id).then(Mono.just(new ResponseDto<>(true, null, null)));
-    }
-
-    @PatchMapping("/parameters/activate/{id}")
-    public Mono<ResponseDto<QualityParameterEnrichedResponse>> activateParameter(@PathVariable String id) {
-        return qualityParameterService.activate(id)
-                .map(data -> new ResponseDto<>(true, data, null))
-                .switchIfEmpty(Mono.error(CustomException.notFound("QualityParameter", id)));
-    }
-
-    @PatchMapping("/parameters/deactivate/{id}")
-    public Mono<ResponseDto<QualityParameterEnrichedResponse>> deactivateParameter(@PathVariable String id) {
-        return qualityParameterService.deactivate(id)
-                .map(data -> new ResponseDto<>(true, data, null))
-                .switchIfEmpty(Mono.error(CustomException.notFound("QualityParameter", id)));
-    }
-
-    // #endregion
-
     // #region Quality Tests
 
     @GetMapping("/tests")
-    public Mono<ResponseDto<List<QualityTest>>> getAllTests() {
+    public Mono<ResponseDto<List<QualityTestEnrichedResponse>>> getAllTests() {
         return qualityTestService.getAll().collectList().map(list -> new ResponseDto<>(true, list, null));
     }
 
@@ -167,12 +104,12 @@ public class AdminRest {
     }
 
     @PostMapping("/tests")
-    public Mono<ResponseEntity<ResponseDto<QualityTest>>> saveTest(@RequestBody QualityTestCreateRequest request) {
+    public Mono<ResponseEntity<ResponseDto<QualityTestEnrichedResponse>>> saveTest(@RequestBody QualityTestCreateRequest request) {
         return qualityTestService.save(request).map(data -> ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDto<>(true, data, null)));
     }
 
     @PutMapping("/tests/{id}")
-    public Mono<ResponseDto<QualityTest>> updateTest(@PathVariable String id, @RequestBody QualityTestCreateRequest request) {
+    public Mono<ResponseDto<QualityTestEnrichedResponse>> updateTest(@PathVariable String id, @RequestBody QualityTestCreateRequest request) {
         return qualityTestService.update(id, request)
                 .map(data -> new ResponseDto<>(true, data, null))
                 .switchIfEmpty(Mono.error(CustomException.notFound("QualityTest", id)));
@@ -189,7 +126,7 @@ public class AdminRest {
     }
 
     @PatchMapping("/tests/restore/{id}")
-    public Mono<ResponseDto<QualityTest>> restoreTest(@PathVariable String id) {
+    public Mono<ResponseDto<QualityTestEnrichedResponse>> restoreTest(@PathVariable String id) {
         return qualityTestService.restore(id)
                 .map(data -> new ResponseDto<>(true, data, null))
                 .switchIfEmpty(Mono.error(CustomException.notFound("QualityTest", id)));

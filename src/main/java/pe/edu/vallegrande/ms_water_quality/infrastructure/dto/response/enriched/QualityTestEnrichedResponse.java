@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import pe.edu.vallegrande.ms_water_quality.domain.models.QualityTest;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.client.dto.ExternalOrganization;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.client.dto.ExternalUser;
+import pe.edu.vallegrande.ms_water_quality.domain.models.TestingPoint;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +20,7 @@ public class QualityTestEnrichedResponse {
 
     private String id;
     private String testCode;
-    private String testingPointId;
+    private List<TestingPoint> testingPointId;  // Lista completa de TestingPoints
     private LocalDateTime testDate;
     private String testType;
     private String weatherConditions;

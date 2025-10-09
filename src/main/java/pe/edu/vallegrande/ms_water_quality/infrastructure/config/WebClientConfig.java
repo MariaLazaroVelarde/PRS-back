@@ -28,6 +28,10 @@ public class WebClientConfig {
     @Bean
     @Qualifier("organizationWebClient")
     public WebClient organizationWebClient() {
+        System.out.println("Organization service base URL: " + organizationServiceBaseUrl);
+        System.out.println("Organization service token: " + organizationServiceToken);
+        System.out.println("Token length: " + (organizationServiceToken != null ? organizationServiceToken.length() : "null"));
+        
         return WebClient.builder()
                 .baseUrl(organizationServiceBaseUrl)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + organizationServiceToken)

@@ -3,14 +3,18 @@ package pe.edu.vallegrande.ms_water_quality.application.services.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pe.edu.vallegrande.ms_water_quality.application.services.QualityTestService;
 import pe.edu.vallegrande.ms_water_quality.domain.models.QualityTest;
+import pe.edu.vallegrande.ms_water_quality.domain.models.TestingPoint;
+import pe.edu.vallegrande.ms_water_quality.infrastructure.client.dto.ExternalOrganization;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.client.dto.ExternalUser;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.request.QualityTestCreateRequest;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.dto.response.enriched.QualityTestEnrichedResponse;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.exception.CustomException;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.repository.QualityTestRepository;
+import pe.edu.vallegrande.ms_water_quality.infrastructure.repository.TestingPointRepository;
 import pe.edu.vallegrande.ms_water_quality.infrastructure.service.ExternalServiceClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,55 +30,38 @@ public class QualityTestServiceImpl implements QualityTestService {
 
     private final QualityTestRepository qualityTestRepository;
     private final ExternalServiceClient externalServiceClient;
+    private final TestingPointRepository testingPointRepository;
 
     /** GET /api/admin/quality/tests */
     @Override
-    public Flux<QualityTest> getAll() {
-        return qualityTestRepository.findAll();
+    public Flux<QualityTestEnrichedResponse> getAll() {
+        return getCurrentUserOrganizationId()
+            .flatMapMany(orgId -> getAllByOrganization(orgId));
     }
 
     /** GET /api/admin/quality/tests/{id} */
     @Override
     public Mono<QualityTestEnrichedResponse> getById(String id) {
-        return qualityTestRepository.findById(id)
-                .switchIfEmpty(Mono.error(CustomException.notFound("QualityTest", id)))
-                .flatMap(this::enrichQualityTest);
-    }
-
-    private Mono<QualityTestEnrichedResponse> enrichQualityTest(QualityTest test) {
-        Mono<ExternalUser> userMono = externalServiceClient.getAdminsByOrganization(test.getOrganizationId())
-                .filter(user -> user.getId().equals(test.getTestedByUserId()))
-                .next();
-
-        return userMono.map(user -> QualityTestEnrichedResponse.builder()
-                .id(test.getId())
-                .testCode(test.getTestCode())
-                .testingPointId(test.getTestingPointId())
-                .testDate(test.getTestDate())
-                .testType(test.getTestType())
-                .weatherConditions(test.getWeatherConditions())
-                .waterTemperature(test.getWaterTemperature())
-                .generalObservations(test.getGeneralObservations())
-                .status(test.getStatus())
-                .results(test.getResults())
-                .createdAt(test.getCreatedAt())
-                .testedByUser(user)
-                .organization(user.getOrganization())
-                .build());
+        return getCurrentUserOrganizationId()
+            .flatMap(orgId -> getByIdAndOrganization(id, orgId));
     }
 
     /** POST /api/admin/quality/tests */
     @Override
-    public Mono<QualityTest> save(QualityTestCreateRequest request) {
+    public Mono<QualityTestEnrichedResponse> save(QualityTestCreateRequest request) {
         return generateNextCode().flatMap(generatedCode -> {
             QualityTest qualityTest = new QualityTest();
 
-            qualityTest.setOrganizationId(request.getOrganizationId());
-            qualityTest.setTestCode(generatedCode);
-            qualityTest.setTestingPointId(request.getTestingPointId());
+            qualityTest.setOrganizationId(request.getOrganizationId());  // Using helper method
+            qualityTest.setTestCode(generatedCode); 
+            
+            // Handle null testingPointId
+            List<String> testingPointIds = request.getTestingPointId() != null ? request.getTestingPointId() : List.of();
+            qualityTest.setTestingPointId(testingPointIds);
+            
             qualityTest.setTestDate(request.getTestDate());
             qualityTest.setTestType(request.getTestType());
-            qualityTest.setTestedByUserId(request.getTestedByUserId());
+            qualityTest.setTestedByUserId(request.getTestedByUserId());  // Using helper method
             qualityTest.setWeatherConditions(request.getWeatherConditions());
             qualityTest.setWaterTemperature(request.getWaterTemperature());
             qualityTest.setGeneralObservations(request.getGeneralObservations());
@@ -82,7 +69,9 @@ public class QualityTestServiceImpl implements QualityTestService {
             qualityTest.setCreatedAt(LocalDateTime.now());
             qualityTest.setDeletedAt(null);
 
-            List<QualityTest.TestResult> results = request.getResults().stream()
+            // Handle null results
+            List<QualityTest.TestResult> results = request.getResults() != null ? 
+                request.getResults().stream()
                     .map(item -> {
                         QualityTest.TestResult result = new QualityTest.TestResult();
                         result.setParameterId(item.getParameterId());
@@ -93,28 +82,28 @@ public class QualityTestServiceImpl implements QualityTestService {
                         result.setObservations(item.getObservations());
                         return result;
                     })
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()) : List.of();
 
             qualityTest.setResults(results);
 
-            return qualityTestRepository.save(qualityTest);
+            return qualityTestRepository.save(qualityTest).flatMap(this::enrichQualityTest);
         });
     }
 
     /** PUT /api/admin/quality/tests/{id} */
     @Override
-    public Mono<QualityTest> update(String id, QualityTestCreateRequest request) {
+    public Mono<QualityTestEnrichedResponse> update(String id, QualityTestCreateRequest request) {
         return qualityTestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(
                         HttpStatus.NOT_FOUND.value(),
                         "Quality test not found",
                         "No quality test found with id " + id)))
                 .flatMap(existing -> generateNextCode().flatMap(generatedCode -> {
-                    existing.setOrganizationId(request.getOrganizationId());
+                    existing.setOrganizationId(request.getOrganizationId());  // Using helper method
                     existing.setTestingPointId(request.getTestingPointId());
                     existing.setTestDate(request.getTestDate());
                     existing.setTestType(request.getTestType());
-                    existing.setTestedByUserId(request.getTestedByUserId());
+                    existing.setTestedByUserId(request.getTestedByUserId());  // Using helper method
                     existing.setWeatherConditions(request.getWeatherConditions());
                     existing.setWaterTemperature(request.getWaterTemperature());
                     existing.setGeneralObservations(request.getGeneralObservations());
@@ -134,7 +123,8 @@ public class QualityTestServiceImpl implements QualityTestService {
                     existing.setResults(results);
 
                     return qualityTestRepository.save(existing);
-                }));
+                }))
+                .flatMap(this::enrichQualityTest);
     }
 
     /** DELETE /api/admin/quality/tests/{id} → Lógico */
@@ -165,7 +155,7 @@ public class QualityTestServiceImpl implements QualityTestService {
 
     /** PATCH /api/admin/quality/tests/{id}/restore */
     @Override
-    public Mono<QualityTest> restore(String id) {
+    public Mono<QualityTestEnrichedResponse> restore(String id) {
         return qualityTestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new CustomException(
                         HttpStatus.NOT_FOUND.value(),
@@ -174,8 +164,67 @@ public class QualityTestServiceImpl implements QualityTestService {
                 .flatMap(test -> {
                     test.setDeletedAt(null);
                     return qualityTestRepository.save(test);
-                });
+                })
+                .flatMap(this::enrichQualityTest);
     }
+
+    // Organization-based methods implementation
+    @Override
+    public Flux<QualityTestEnrichedResponse> getAllByOrganization(String organizationId) {
+        return qualityTestRepository.findAllByOrganizationId(organizationId).flatMap(this::enrichQualityTest);
+    }
+
+    @Override
+    public Mono<QualityTestEnrichedResponse> getByIdAndOrganization(String id, String organizationId) {
+        return qualityTestRepository.findById(id)
+                .filter(test -> test.getOrganizationId().equals(organizationId))
+                .flatMap(this::enrichQualityTest)
+                .switchIfEmpty(Mono.error(CustomException.notFound("QualityTest", id)));
+    }
+
+ private Mono<QualityTestEnrichedResponse> enrichQualityTest(QualityTest test) {
+    // Obtener organización y usuario
+    Mono<ExternalUser> userMono = externalServiceClient.getAdminsByOrganization(test.getOrganizationId())
+            .filter(user -> user.getId() != null && user.getId().equals(test.getTestedByUserId()))
+            .next()
+            .defaultIfEmpty(new ExternalUser());
+
+    // Evitar error si getTestingPoints() es null
+    List<String> testingPointId = test.getTestingPointId() != null
+            ? test.getTestingPointId()
+            : List.of();
+
+    // Obtener los TestingPoints asociados (solo si hay IDs)
+    Flux<TestingPoint> testingPointsFlux = Flux.fromIterable(testingPointId)
+            .flatMap(id -> testingPointRepository.findById(id)
+                    .onErrorResume(e -> Mono.empty()) // evita romper si un ID no existe
+            );
+
+    // Combinar usuario y puntos de prueba
+    return Mono.zip(
+            userMono,
+            testingPointsFlux.collectList()
+    ).map(tuple -> {
+        ExternalUser user = tuple.getT1();
+        List<TestingPoint> testingPoint = tuple.getT2();
+
+        return QualityTestEnrichedResponse.builder()
+                .id(test.getId())
+                .testCode(test.getTestCode())
+                .testingPointId(testingPoint)
+                .testDate(test.getTestDate())
+                .testType(test.getTestType())
+                .weatherConditions(test.getWeatherConditions())
+                .waterTemperature(test.getWaterTemperature())
+                .generalObservations(test.getGeneralObservations())
+                .status(test.getStatus())
+                .results(test.getResults())
+                .createdAt(test.getCreatedAt())
+                .organization(user.getOrganization())
+                .testedByUser(user)
+                .build();
+    });
+}
 
     /** Código incremental tipo ANL### */
     private Mono<String> generateNextCode() {
@@ -192,5 +241,12 @@ public class QualityTestServiceImpl implements QualityTestService {
                     }
                 })
                 .defaultIfEmpty("ANL001");
+    }
+    
+    // Method to get the current user's organization ID
+    private Mono<String> getCurrentUserOrganizationId() {
+        // For now, we'll return a placeholder. In a real implementation, you would extract
+        // the organization ID from the JWT token or user details
+        return Mono.just("6896b2ecf3e398570ffd99d3"); // Placeholder - replace with actual logic
     }
 }

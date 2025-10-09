@@ -13,12 +13,13 @@ import java.util.List;
 @AllArgsConstructor
 public class QualityTestCreateRequest {
 
-private String organizationId;
+    // Changed field names to match the request format you're using
+    private String organization;  // Changed from organizationId
     private String testCode;
-    private String testingPointId;
+    private List<String> testingPointId;
     private LocalDateTime testDate;
     private String testType;
-    private String testedByUserId;
+    private String testedByUser;  // Changed from testedByUserId
     private String weatherConditions;
     private Double waterTemperature;
     private String generalObservations;
@@ -35,5 +36,22 @@ private String organizationId;
         private String unit;
         private String status; // ACCEPTABLE, WARNING, CRITICAL
         private String observations;
+    }
+    
+    // Helper methods to maintain compatibility with existing code
+    public String getOrganizationId() {
+        return this.organization;
+    }
+    
+    public void setOrganizationId(String organizationId) {
+        this.organization = organizationId;
+    }
+    
+    public String getTestedByUserId() {
+        return this.testedByUser;
+    }
+    
+    public void setTestedByUserId(String testedByUserId) {
+        this.testedByUser = testedByUserId;
     }
 }

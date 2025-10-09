@@ -10,17 +10,18 @@ services:
       - DATABASE_PASSWORD=ZC7O1Ok40SwkfEje
       - PORT=8087
       - SWAGGER_ENABLED=false
-      - JAVA_OPTS=-Xms128m -Xmx384m -XX:+UseG1GC -XX:+UseStringDeduplication
-    restart: unless-stopped
+      - JAVA_OPTS=-Xms32m -Xmx128m -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+UseStringDeduplication -Xss256k
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+          cpus: '0.5'
+        reservations:
+          memory: 100M
+          cpus: '0.25'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8087/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    deploy:
-      resources:
-        limits:
-          memory: 450M
-        reservations:
-          memory: 200M
