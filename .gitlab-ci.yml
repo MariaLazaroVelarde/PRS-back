@@ -1,5 +1,5 @@
 # =============================================================================
-# GitLab CI/CD Pipeline - MS-WATER-QUALITY 
+# GitLab CI/CD Pipeline - MS-DISTRIBUTION
 # Construye y sube imagen Docker a DockerHub
 # =============================================================================
 
@@ -9,7 +9,7 @@ stages:
   - docker-build
 
 variables:
-  DOCKER_IMAGE_NAME: 'ronaldinhoccencho/ms-water-quality'
+  DOCKER_IMAGE_NAME: 'ronaldinhoccencho/ms-distribution'
   DOCKER_TAG: 'latest'
   MAVEN_OPTS: '-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository'
 

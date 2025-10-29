@@ -1,253 +1,259 @@
-# Microservicio de Calidad del Agua (ms-water-quality) - API Endpoints
+# Microservicio de Distribución (vg-ms-distribution) - API Endpoints
 
-Este documento describe los endpoints disponibles en el microservicio de Calidad del Agua, incluyendo ejemplos de cómo interactuar con ellos para insertar y editar entidades.
+Este documento describe los endpoints disponibles en el microservicio de Distribución, incluyendo ejemplos de cómo interactuar con ellos para insertar y editar entidades.
 
-La ruta base para todos los endpoints es `/api/admin/quality`.
+La ruta base para todos los endpoints es `/jass/ms-distribution/admin`.
 
 ---
 
-## 1. Testing Points (Puntos de Muestreo)
+## 1. Dashboard y Estadísticas
 
-**Ruta Base:** `/api/admin/quality/sampling-points`
+**Ruta Base:** `/jass/ms-distribution/admin/dashboard`
 
 ### Endpoints
 
-*   **`GET /api/admin/quality/sampling-points`**: Obtener todos los puntos de muestreo (enriquecidos).
-*   **`GET /api/admin/quality/sampling-points/active`**: Obtener todos los puntos de muestreo activos (enriquecidos).
-*   **`GET /api/admin/quality/sampling-points/inactive`**: Obtener todos los puntos de muestreo inactivos (enriquecidos).
-*   **`GET /api/admin/quality/sampling-points/{id}`**: Obtener un punto de muestreo por ID (enriquecido).
-*   **`POST /api/admin/quality/sampling-points`**: Crear un nuevo punto de muestreo.
-*   **`PUT /api/admin/quality/sampling-points/{id}`**: Actualizar un punto de muestreo existente.
-*   **`DELETE /api/admin/quality/sampling-points/{id}`**: Eliminar lógicamente un punto de muestreo.
-*   **`PATCH /api/admin/quality/sampling-points/activate/{id}`**: Activar un punto de muestreo.
-*   **`PATCH /api/admin/quality/sampling-points/deactivate/{id}`**: Desactivar un punto de muestreo.
+*   **`GET /jass/ms-distribution/admin/dashboard/stats`**: Obtener estadísticas completas del dashboard.
+*   **`GET /jass/ms-distribution/admin/dashboard/summary`**: Obtener resumen del sistema de distribución.
+
+---
+
+## 2. Programas de Distribución
+
+**Ruta Base:** `/jass/ms-distribution/admin/program`
+
+### Endpoints
+
+*   **`GET /jass/ms-distribution/admin/program`**: Obtener todos los programas de distribución.
+*   **`GET /jass/ms-distribution/admin/program?organizationId={id}`**: Obtener programas por ID de organización.
+*   **`GET /jass/ms-distribution/admin/program/enriched`**: Obtener todos los programas enriquecidos.
+*   **`GET /jass/ms-distribution/admin/program/{id}`**: Obtener un programa por ID.
+*   **`POST /jass/ms-distribution/admin/program`**: Crear un nuevo programa de distribución.
+*   **`PUT /jass/ms-distribution/admin/program/{id}`**: Actualizar un programa existente.
+*   **`DELETE /jass/ms-distribution/admin/program/{id}`**: Eliminar un programa.
+*   **`PATCH /jass/ms-distribution/admin/program/activate/{id}`**: Activar un programa.
+*   **`PATCH /jass/ms-distribution/admin/program/deactivate/{id}`**: Desactivar un programa.
 
 ### Ejemplos JSON
 
-#### **POST /api/admin/quality/sampling-points (Insertar)**
+#### **POST /jass/ms-distribution/admin/program (Insertar)**
 
 ```json
 {
   "organizationId": "6896b2ecf3e398570ffd99d3",
-  "pointCode": "PT001",
-  "pointName": "Punto de Muestreo Principal",
-  "pointType": "RESERVORIO",
+  "programCode": "PROG001",
+  "scheduleId": "68c08b7163293e2fe5fcdb1a",
+  "routeId": "68c08b7163293e2fe5fcdb1b",
   "zoneId": "ZN0001",
-  "locationDescription": "Cerca del tanque principal",
-  "street": "Calle Falsa 123",
-  "coordinates": {
-    "latitude": -12.046374,
-    "longitude": -77.042793
-  }
+  "streetId": "ST0001",
+  "programDate": "2025-10-16",
+  "plannedStartTime": "08:00",
+  "plannedEndTime": "12:00",
+  "responsibleUserId": "68c08b7163293e2fe5fcdb1c",
+  "observations": "Programa de distribución matutino"
 }
 ```
 
-#### **PUT /api/admin/quality/sampling-points/{id} (Editar)**
+#### **PUT /jass/ms-distribution/admin/program/{id} (Editar)**
 
 ```json
 {
   "organizationId": "6896b2ecf3e398570ffd99d3",
-  "pointCode": "PT001",
-  "pointName": "Punto de Muestreo Principal Actualizado",
-  "pointType": "RED_DISTRIBUCION",
+  "programCode": "PROG001",
+  "scheduleId": "68c08b7163293e2fe5fcdb1a",
+  "routeId": "68c08b7163293e2fe5fcdb1b",
   "zoneId": "ZN0002",
-  "locationDescription": "Cerca de la estación de bombeo",
-  "street": "Avenida Siempre Viva 742",
-  "coordinates": {
-    "latitude": -12.046374,
-    "longitude": -77.042793
-  },
-  "status": "ACTIVE"
-}
-```
-
----
-
-## 2. Quality Parameters (Parámetros de Calidad)
-
-**Ruta Base:** `/api/admin/quality/parameters`
-
-### Endpoints
-
-*   **`GET /api/admin/quality/parameters`**: Obtener todos los parámetros de calidad (enriquecidos).
-*   **`GET /api/admin/quality/parameters/active`**: Obtener todos los parámetros de calidad activos (enriquecidos).
-*   **`GET /api/admin/quality/parameters/inactive`**: Obtener todos los parámetros de calidad inactivos (enriquecidos).
-*   **`GET /api/admin/quality/parameters/{id}`**: Obtener un parámetro de calidad por ID (enriquecido).
-*   **`POST /api/admin/quality/parameters`**: Crear un nuevo parámetro de calidad.
-*   **`PUT /api/admin/quality/parameters/{id}`**: Actualizar un parámetro de calidad existente.
-*   **`DELETE /api/admin/quality/parameters/{id}`**: Eliminar un parámetro de calidad.
-*   **`PATCH /api/admin/quality/parameters/activate/{id}`**: Activar un parámetro de calidad.
-*   **`PATCH /api/admin/quality/parameters/deactivate/{id}`**: Desactivar un parámetro de calidad.
-
-### Ejemplos JSON
-
-#### **POST /api/admin/quality/parameters (Insertar)**
-
-```json
-{
-  "organizationId": "6896b2ecf3e398570ffd99d3",
-  "parameterCode": "PH001",
-  "parameterName": "pH del Agua",
-  "unitOfMeasure": "pH",
-  "minAcceptable": 6.5,
-  "maxAcceptable": 8.5,
-  "optimalRange": {
-    "min": 7.0,
-    "max": 7.8
-  },
-  "testFrequency": "DAILY"
-}
-```
-
-#### **PUT /api/admin/quality/parameters/{id} (Editar)**
-
-```json
-{
-  "organizationId": "6896b2ecf3e398570ffd99d3",
-  "parameterCode": "PH001",
-  "parameterName": "pH del Agua Potable",
-  "unitOfMeasure": "pH",
-  "minAcceptable": 6.8,
-  "maxAcceptable": 8.2,
-  "optimalRange": {
-    "min": 7.2,
-    "max": 7.6
-  },
-  "testFrequency": "WEEKLY",
-  "status": "ACTIVE"
-}
-```
-
----
-
-## 3. Quality Tests (Pruebas de Calidad)
-
-**Ruta Base:** `/api/admin/quality/tests`
-
-### Endpoints
-
-*   **`GET /api/admin/quality/tests`**: Obtener todas las pruebas de calidad.
-*   **`GET /api/admin/quality/tests/{id}`**: Obtener una prueba de calidad por ID (enriquecida).
-*   **`POST /api/admin/quality/tests`**: Crear una nueva prueba de calidad.
-*   **`PUT /api/admin/quality/tests/{id}`**: Actualizar una prueba de calidad existente.
-*   **`DELETE /api/admin/quality/tests/{id}`**: Eliminar lógicamente una prueba de calidad.
-*   **`DELETE /api/admin/quality/tests/physical/{id}`**: Eliminar físicamente una prueba de calidad.
-*   **`PATCH /api/admin/quality/tests/restore/{id}`**: Restaurar una prueba de calidad eliminada lógicamente.
-
-### Ejemplos JSON
-
-#### **POST /api/admin/quality/tests (Insertar)**
-
-```json
-{
-  "organizationId": "6896b2ecf3e398570ffd99d3",
-  "testCode": "ANL001",
-  "testingPointId": "68c08b7163293e2fe5fcdb1a",
-  "testDate": "2025-10-06T10:00:00",
-  "testType": "FISICOQUIMICO",
-  "testedByUserId": "68c08b7163293e2fe5fcdb1a",
-  "weatherConditions": "Soleado",
-  "waterTemperature": 25.5,
-  "generalObservations": "Agua clara, sin olor",
+  "streetId": "ST0002",
+  "programDate": "2025-10-16",
+  "plannedStartTime": "09:00",
+  "plannedEndTime": "13:00",
+  "actualStartTime": "09:15",
+  "actualEndTime": "12:45",
   "status": "COMPLETED",
-  "results": [
-    {
-      "parameterId": "PH001",
-      "parameterCode": "PH001",
-      "measuredValue": 7.5,
-      "unit": "pH",
-      "status": "ACCEPTABLE",
-      "observations": "Dentro del rango óptimo"
-    },
-    {
-      "parameterId": "TURB001",
-      "parameterCode": "TURB001",
-      "measuredValue": 0.8,
-      "unit": "NTU",
-      "status": "ACCEPTABLE",
-      "observations": "Baja turbidez"
-    }
-  ]
-}
-```
-
-#### **PUT /api/admin/quality/tests/{id} (Editar)**
-
-```json
-{
-  "organizationId": "6896b2ecf3e398570ffd99d3",
-  "testCode": "ANL001",
-  "testingPointId": "68c08b7163293e2fe5fcdb1a",
-  "testDate": "2025-10-06T11:30:00",
-  "testType": "BACTERIOLOGICO",
-  "testedByUserId": "68c0a4ab07fa2d47448b530a",
-  "weatherConditions": "Nublado",
-  "waterTemperature": 24.0,
-  "generalObservations": "Agua ligeramente turbia",
-  "status": "PENDING",
-  "results": [
-    {
-      "parameterId": "PH001",
-      "parameterCode": "PH001",
-      "measuredValue": 7.2,
-      "unit": "pH",
-      "status": "ACCEPTABLE",
-      "observations": "Rango aceptable"
-    }
-  ]
+  "responsibleUserId": "68c08b7163293e2fe5fcdb1c",
+  "observations": "Programa completado con retraso menor"
 }
 ```
 
 ---
 
-## 4. Daily Records (Registros Diarios)
+## 3. Rutas de Distribución
 
-**Ruta Base:** `/api/admin/quality/daily-records`
+**Ruta Base:** `/jass/ms-distribution/admin/route`
 
 ### Endpoints
 
-*   **`GET /api/admin/quality/daily-records`**: Obtener todos los registros diarios (enriquecidos).
-*   **`GET /api/admin/quality/daily-records/{id}`**: Obtener un registro diario por ID (enriquecido).
-*   **`POST /api/admin/quality/daily-records`**: Crear un nuevo registro diario.
-*   **`PUT /api/admin/quality/daily-records/{id}`**: Actualizar un registro diario existente.
-*   **`DELETE /api/admin/quality/daily-records/{id}`**: Eliminar lógicamente un registro diario.
-*   **`DELETE /api/admin/quality/daily-records/physical/{id}`**: Eliminar físicamente un registro diario.
-*   **`PATCH /api/admin/quality/daily-records/restore/{id}`**: Restaurar un registro diario eliminado lógicamente.
+*   **`GET /jass/ms-distribution/admin/route`**: Obtener todas las rutas de distribución.
+*   **`GET /jass/ms-distribution/admin/route/active`**: Obtener todas las rutas activas.
+*   **`GET /jass/ms-distribution/admin/route/{id}`**: Obtener una ruta por ID.
+*   **`POST /jass/ms-distribution/admin/route`**: Crear una nueva ruta de distribución.
+*   **`PUT /jass/ms-distribution/admin/route/{id}`**: Actualizar una ruta existente.
+*   **`DELETE /jass/ms-distribution/admin/route/{id}`**: Eliminar una ruta.
+*   **`PATCH /jass/ms-distribution/admin/route/activate/{id}`**: Activar una ruta.
+*   **`PATCH /jass/ms-distribution/admin/route/deactivate/{id}`**: Desactivar una ruta.
 
 ### Ejemplos JSON
 
-#### **POST /api/admin/quality/daily-records (Insertar)**
+#### **POST /jass/ms-distribution/admin/route (Insertar)**
 
 ```json
 {
   "organizationId": "6896b2ecf3e398570ffd99d3",
-  "recordCode": "DR001",
-  "testingPointIds": ["68c08b7163293e2fe5fcdb1a"],
-  "recordDate": "2025-10-06T08:00:00",
-  "level": 1.5,
-  "acceptable": true,
-  "actionRequired": false,
-  "recordedByUserId": "68c08b7163293e2fe5fcdb1a",
-  "observations": "Nivel de cloro dentro de los límites",
-  "amount": 0.5,
-  "recordType": "CLORO"
+  "routeCode": "RT001",
+  "routeName": "Ruta Centro",
+  "zones": "ZN001,ZN002,ZN003",
+  "totalEstimatedDuration": 240,
+  "responsibleUserId": "68c08b7163293e2fe5fcdb1c"
 }
 ```
 
-#### **PUT /api/admin/quality/daily-records/{id} (Editar)**
+#### **PUT /jass/ms-distribution/admin/route/{id} (Editar)**
 
 ```json
 {
   "organizationId": "6896b2ecf3e398570ffd99d3",
-  "recordCode": "DR001",
-  "testingPointIds": ["68c08b7163293e2fe5fcdb1a"],
-  "recordDate": "2025-10-06T09:30:00",
-  "level": 1.8,
-  "acceptable": false,
-  "actionRequired": true,
-  "recordedByUserId": "68c0a4ab07fa2d47448b530a",
-  "observations": "Nivel de cloro bajo, requiere acción inmediata",
-  "amount": 0.7,
-  "recordType": "CLORO"
+  "routeCode": "RT001",
+  "routeName": "Ruta Centro Ampliada",
+  "zones": "ZN001,ZN002,ZN003,ZN004",
+  "totalEstimatedDuration": 300,
+  "responsibleUserId": "68c08b7163293e2fe5fcdb1c",
+  "status": "ACTIVE"
+}
+```
+
+---
+
+## 4. Horarios de Distribución
+
+**Ruta Base:** `/jass/ms-distribution/admin/schedule`
+
+### Endpoints
+
+*   **`GET /jass/ms-distribution/admin/schedule`**: Obtener todos los horarios de distribución.
+*   **`GET /jass/ms-distribution/admin/schedule/active`**: Obtener todos los horarios activos.
+*   **`GET /jass/ms-distribution/admin/schedule/{id}`**: Obtener un horario por ID.
+*   **`POST /jass/ms-distribution/admin/schedule`**: Crear un nuevo horario de distribución.
+*   **`PUT /jass/ms-distribution/admin/schedule/{id}`**: Actualizar un horario existente.
+*   **`DELETE /jass/ms-distribution/admin/schedule/{id}`**: Eliminar un horario.
+*   **`PATCH /jass/ms-distribution/admin/schedule/activate/{id}`**: Activar un horario.
+*   **`PATCH /jass/ms-distribution/admin/schedule/deactivate/{id}`**: Desactivar un horario.
+
+### Ejemplos JSON
+
+#### **POST /jass/ms-distribution/admin/schedule (Insertar)**
+
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "scheduleCode": "SCH001",
+  "scheduleName": "Horario Matutino",
+  "startTime": "08:00",
+  "endTime": "12:00",
+  "daysOfWeek": "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY",
+  "frequency": "DAILY"
+}
+```
+
+#### **PUT /jass/ms-distribution/admin/schedule/{id} (Editar)**
+
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "scheduleCode": "SCH001",
+  "scheduleName": "Horario Matutino Extendido",
+  "startTime": "07:30",
+  "endTime": "13:00",
+  "daysOfWeek": "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY",
+  "frequency": "DAILY",
+  "status": "ACTIVE"
+}
+```
+
+---
+
+## 5. Tarifas
+
+**Ruta Base:** `/jass/ms-distribution/admin/fare`
+
+### Endpoints
+
+*   **`GET /jass/ms-distribution/admin/fare`**: Obtener todas las tarifas.
+*   **`GET /jass/ms-distribution/admin/fare/active`**: Obtener todas las tarifas activas.
+*   **`GET /jass/ms-distribution/admin/fare/{id}`**: Obtener una tarifa por ID.
+*   **`POST /jass/ms-distribution/admin/fare`**: Crear una nueva tarifa.
+*   **`PUT /jass/ms-distribution/admin/fare/{id}`**: Actualizar una tarifa existente.
+*   **`DELETE /jass/ms-distribution/admin/fare/{id}`**: Eliminar una tarifa.
+*   **`PATCH /jass/ms-distribution/admin/fare/activate/{id}`**: Activar una tarifa.
+*   **`PATCH /jass/ms-distribution/admin/fare/deactivate/{id}`**: Desactivar una tarifa.
+
+### Ejemplos JSON
+
+#### **POST /jass/ms-distribution/admin/fare (Insertar)**
+
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "fareCode": "FARE001",
+  "fareName": "Tarifa Residencial Básica",
+  "fareType": "RESIDENTIAL",
+  "fareAmount": 15.50
+}
+```
+
+#### **PUT /jass/ms-distribution/admin/fare/{id} (Editar)**
+
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "fareCode": "FARE001",
+  "fareName": "Tarifa Residencial Básica Actualizada",
+  "fareType": "RESIDENTIAL",
+  "fareAmount": 18.00,
+  "status": "ACTIVE"
+}
+```
+
+---
+
+## 6. Programación de Tarifas
+
+**Ruta Base:** `/jass/ms-distribution/admin/fare-schedule`
+
+### Endpoints
+
+*   **`GET /jass/ms-distribution/admin/fare-schedule`**: Obtener todas las programaciones de tarifas.
+*   **`GET /jass/ms-distribution/admin/fare-schedule/active`**: Obtener todas las programaciones activas.
+*   **`GET /jass/ms-distribution/admin/fare-schedule/{id}`**: Obtener una programación por ID.
+*   **`POST /jass/ms-distribution/admin/fare-schedule`**: Crear una nueva programación de tarifa.
+*   **`PUT /jass/ms-distribution/admin/fare-schedule/{id}`**: Actualizar una programación existente.
+*   **`DELETE /jass/ms-distribution/admin/fare-schedule/{id}`**: Eliminar una programación.
+*   **`PATCH /jass/ms-distribution/admin/fare-schedule/activate/{id}`**: Activar una programación.
+*   **`PATCH /jass/ms-distribution/admin/fare-schedule/deactivate/{id}`**: Desactivar una programación.
+
+### Ejemplos JSON
+
+#### **POST /jass/ms-distribution/admin/fare-schedule (Insertar)**
+
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "scheduleCode": "FS001",
+  "fareId": "68c08b7163293e2fe5fcdb1a",
+  "effectiveDate": "2025-11-01T00:00:00",
+  "expirationDate": "2025-12-31T23:59:59",
+  "description": "Tarifa de temporada alta"
+}
+```
+
+#### **PUT /jass/ms-distribution/admin/fare-schedule/{id} (Editar)**
+
+```json
+{
+  "organizationId": "6896b2ecf3e398570ffd99d3",
+  "scheduleCode": "FS001",
+  "fareId": "68c08b7163293e2fe5fcdb1a",
+  "effectiveDate": "2025-11-01T00:00:00",
+  "expirationDate": "2026-01-31T23:59:59",
+  "description": "Tarifa de temporada alta extendida",
+  "status": "ACTIVE"
 }
 ```
