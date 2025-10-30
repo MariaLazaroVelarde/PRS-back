@@ -131,7 +131,6 @@
             <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
-    <dependencies>
         <!-- Reactor Core y Test -->
         <dependency>
             <groupId>io.projectreactor</groupId>
@@ -160,15 +159,14 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-         <!-- AssertJ (opcional para aserciones más limpias) -->
+        <!-- AssertJ -->
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>3.25.3</version>
             <scope>test</scope>
         </dependency>
-        
-        <!-- Swagger/OpenAPI Documentation -->
+        <!-- Swagger/OpenAPI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
