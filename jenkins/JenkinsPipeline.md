@@ -83,18 +83,4 @@ Para integración continua automática:
 ## Troubleshooting
 
 ### Problemas comunes:
-1. **Permisos de Docker**: Asegúrate de que Jenkins tenga acceso a Docker
-2. **Memoria insuficiente**: Aumenta la memoria en MAVEN_OPTS
-3. **Versiones de Java**: Verifica que esté usando Java 17
-
-### Logs de diagnóstico:
-```bash
-# Ver logs de Jenkins
-docker logs jenkins
-
-# Ver espacio en disco
-df -h
-
-# Ver memoria
-free -h
-```
+1. **Versiones de Java**: Verifica que esté usando Java 17
