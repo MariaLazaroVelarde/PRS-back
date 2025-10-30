@@ -36,13 +36,15 @@ pipeline {
                     echo '📄 Publicando resultados de pruebas...'
                     junit 'target/surefire-reports/*.xml'
 
-                    // Publicar reporte de cobertura (JaCoCo)
                     script {
-                        try {
-                            publishCoverage adapters: [jacocoAdapter('target/site/jacoco/jacoco.xml')],
-                                            sourceFileResolver: sourceFiles('STORE_ALL_BUILD')
-                        } catch (Exception e) {
-                            echo "⚠️ No se pudo publicar cobertura: ${e.message}"
+                        if (fileExists('target/site/jacoco/jacoco.xml')) {
+                            recordCoverage(
+                                tools: [[parser: 'JACOCO', pattern: 'target/site/jacoco/jacoco.xml']],
+                                sourceCodeRetention: 'EVERY_BUILD',
+                                failNoReports: false
+                            )
+                        } else {
+                            echo '⚠️ No se encontró el reporte de JaCoCo'
                         }
                     }
                 }
