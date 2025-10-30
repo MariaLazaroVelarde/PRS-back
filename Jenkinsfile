@@ -1,96 +1,92 @@
 pipeline {
     agent any
-    
+
     tools {
-        maven 'M3'
-        jdk 'Java17'
+        jdk 'jdk17'
+        maven 'maven3'
     }
-    
+
     environment {
-        GITHUB_REPO = 'https://github.com/MariaLazaroVelarde/PRS-back.git'
-        MAVEN_OPTS = '-Xmx1024m'
+        MAVEN_OPTS = "-Dmaven.test.failure.ignore=false"
+        SONARQUBE_ENV = "SonarQubeServer"
+        SLACK_CHANNEL = "#jenkins"
     }
-    
+
     stages {
+
         stage('Checkout') {
             steps {
-                git branch: 'main', url: "${GITHUB_REPO}"
+                echo "📥 Clonando repositorio desde GitHub..."
+                checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Build & Unit Tests') {
             steps {
-                echo '⚙️ Compilando el proyecto...'
-                sh 'mvn clean compile'
-            }
-        }
-
-        stage('Unit Tests') {
-            steps {
-                echo '🧪 Ejecutando pruebas unitarias...'
-                sh 'mvn test -Dspring.profiles.active=test'
+                echo "🧪 Ejecutando pruebas unitarias con Maven..."
+                sh 'mvn clean verify'
             }
             post {
                 always {
-                    junit 'target/surefire-reports/*.xml'
-                    publishCoverage adapters: [[parser: 'JACOCO', path: 'target/site/jacoco/jacoco.xml']]
+                    junit '**/target/surefire-reports/*.xml'
+                    jacoco execPattern: '**/target/jacoco.exec'
+                }
+                success {
+                    echo "✅ Pruebas unitarias exitosas."
+                }
+                failure {
+                    echo "❌ Fallaron las pruebas unitarias."
+                    slackSend(channel: env.SLACK_CHANNEL, message: "❌ *Build fallido:* pruebas unitarias no pasaron en ${env.JOB_NAME} #${env.BUILD_NUMBER}")
                 }
             }
         }
 
-        stage('Integration Tests') {
-            steps {
-                echo '🔗 Ejecutando pruebas de integración...'
-                sh 'mvn test -Dtest=*IntegrationTest'
+        stage('Code Quality - SonarQube') {
+            when {
+                expression { fileExists('sonar-project.properties') }
             }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
-                }
-            }
-        }
-
-        stage('Code Analysis') {
             steps {
-                echo '🔍 Analizando calidad de código con SonarQube...'
-                withSonarQubeEnv('MySonarQubeServer') {
+                echo "🔍 Ejecutando análisis de código con SonarQube..."
+                withSonarQubeEnv(env.SONARQUBE_ENV) {
                     sh 'mvn sonar:sonar'
                 }
+            }
+        }
+
+        stage('Integration / Selenium Tests') {
+            when {
+                expression { fileExists('src/test/java/selenium') }
+            }
+            steps {
+                echo "🌐 Ejecutando pruebas Selenium (UI)..."
+                sh 'mvn test -Dtest=*Selenium*'
+            }
+            post {
+                success {
+                    echo "✅ Pruebas Selenium completadas correctamente."
+                }
+                failure {
+                    echo "⚠️ Fallaron las pruebas de Selenium."
+                    slackSend(channel: env.SLACK_CHANNEL, message: "⚠️ *Selenium Tests fallaron* en ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+                }
+            }
+        }
+
+        stage('Reports & Notifications') {
+            steps {
+                echo "📊 Generando reportes finales..."
+                archiveArtifacts artifacts: 'target/site/jacoco/index.html', allowEmptyArchive: true
+                slackSend(channel: env.SLACK_CHANNEL, message: "✅ *Build exitoso:* ${env.JOB_NAME} #${env.BUILD_NUMBER} - Todos los tests pasaron.")
             }
         }
     }
 
     post {
-        always {
-            cleanWs()
-        }
         success {
-            echo '✅ Pipeline ejecutado con éxito!'
-
-            slackSend(
-                channel: '#jenkins-alerts',
-                color: 'good',
-                message: """
-                ✅ *BUILD EXITOSO*
-                Proyecto: *${env.JOB_NAME}*
-                Build: *#${env.BUILD_NUMBER}*
-                Ver detalles: ${env.BUILD_URL}
-                """
-            )
+            echo "🎉 Pipeline completado exitosamente."
         }
         failure {
-            echo '❌ Pipeline falló!'
-
-            slackSend(
-                channel: '#jenkins-alerts',
-                color: 'danger',
-                message: """
-                ❌ *BUILD FALLIDO*
-                Proyecto: *${env.JOB_NAME}*
-                Build: *#${env.BUILD_NUMBER}*
-                Ver detalles: ${env.BUILD_URL}
-                """
-            )
+            echo "💥 Pipeline fallido. Revisa los logs o errores de test."
         }
     }
 }

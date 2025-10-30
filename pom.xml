@@ -131,9 +131,17 @@
             <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
+        <dependencies>
+        <!-- Reactor Core y Test -->
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.6.3</version>
+        </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
+            <version>3.6.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -150,6 +158,13 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+         <!-- AssertJ (opcional para aserciones más limpias) -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.25.3</version>
             <scope>test</scope>
         </dependency>
         
@@ -271,6 +286,7 @@
                     <systemPropertyVariables>
                         <spring.profiles.active>test</spring.profiles.active>
                     </systemPropertyVariables>
+                    <useModulePath>false</useModulePath>
                 </configuration>
             </plugin>
             
