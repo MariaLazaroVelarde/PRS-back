@@ -14,6 +14,7 @@ import pe.edu.vallegrande.msdistribution.domain.models.Fare;
 import pe.edu.vallegrande.msdistribution.infrastructure.dto.request.FareCreateRequest;
 import pe.edu.vallegrande.msdistribution.infrastructure.exception.CustomException;
 import pe.edu.vallegrande.msdistribution.infrastructure.repository.FareRepository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -23,6 +24,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
@@ -89,6 +91,7 @@ public class FareServiceImplTest {
                 .fareAmount(new BigDecimal("10"))
                 .status(Constants.ACTIVE.name())
                 .createdAt(Instant.now())
+                .effectiveDate(new java.util.Date()) // Fix: Add effectiveDate
                 .build();
 
         // Nuevos datos que llegan desde el request
@@ -108,10 +111,13 @@ public class FareServiceImplTest {
                 .fareAmount(new BigDecimal("20"))
                 .status(existing.getStatus())
                 .createdAt(existing.getCreatedAt())
+                .effectiveDate(existing.getEffectiveDate()) // Fix: Add effectiveDate
                 .build();
 
         // Configuración del mock: primero encuentra, luego guarda
         when(fareRepository.findById(id)).thenReturn(Mono.just(existing));
+        // Fix: Mock findAllByStatus to return empty Flux to avoid null pointer
+        when(fareRepository.findAllByStatus(anyString())).thenReturn(Flux.empty());
         when(fareRepository.save(any(Fare.class))).thenReturn(Mono.just(saved));
 
         // Act & Assert
@@ -161,20 +167,23 @@ public class FareServiceImplTest {
     }
 
     // ============================================================
-    // 🔹 TEST: Activar tarifa (sin cambios)
+    // 🔹 TEST: Activar tarifa (sin cambios) - should throw conflict error
     // ============================================================
     @Test
-    void activateF_ShouldNoOp_WhenSameStatus() {
+    void activateF_ShouldError_WhenSameStatus() {
         // Arrange
         String id = "fare-1";
         Fare existing = Fare.builder().id(id).status(Constants.ACTIVE.name()).build();
         when(fareRepository.findById(id)).thenReturn(Mono.just(existing));
-        when(fareRepository.save(any(Fare.class))).thenReturn(Mono.just(existing));
 
         // Act & Assert
         StepVerifier.create(fareService.activateF(id))
-            .assertNext(result -> assertEquals(Constants.ACTIVE.name(), result.getStatus()))
-            .verifyComplete();
+            .expectErrorSatisfies(err -> {
+                assertTrue(err instanceof CustomException);
+                CustomException ce = (CustomException) err;
+                assertEquals("Conflicto", ce.getErrorMessage().getMessage());
+            })
+            .verify();
     }
 
     // ============================================================
@@ -191,6 +200,8 @@ public class FareServiceImplTest {
                 .build();
 
         when(fareRepository.findById(id)).thenReturn(Mono.just(existing));
+        // Fix: Mock findAllByStatus to return empty Flux to avoid null pointer
+        when(fareRepository.findAllByStatus(anyString())).thenReturn(Flux.empty());
         when(fareRepository.save(any(Fare.class))).thenReturn(Mono.just(saved));
 
         // Act & Assert
@@ -208,6 +219,8 @@ public class FareServiceImplTest {
         Fare last = Fare.builder().fareCode("TAR099").build();
         when(fareRepository.findTopByOrderByFareCodeDesc()).thenReturn(Mono.just(last));
         when(fareRepository.existsByFareCode("TAR100")).thenReturn(Mono.just(false));
+        // Fix: Mock findAllByStatus to return empty Flux to avoid null pointer
+        when(fareRepository.findAllByStatus(anyString())).thenReturn(Flux.empty());
 
         FareCreateRequest request = FareCreateRequest.builder()
                 .organizationId("org-1")
@@ -263,6 +276,8 @@ public class FareServiceImplTest {
             when(fareRepository.findTopByOrderByFareCodeDesc()).thenReturn(Mono.just(last));
         }
         when(fareRepository.existsByFareCode(expectedFareCode)).thenReturn(Mono.just(false));
+        // Fix: Mock findAllByStatus to return empty Flux to avoid null pointer
+        when(fareRepository.findAllByStatus(anyString())).thenReturn(Flux.empty());
 
         FareCreateRequest request = FareCreateRequest.builder()
                 .organizationId("org-1")
@@ -317,6 +332,8 @@ public class FareServiceImplTest {
         Fare last = Fare.builder().fareCode("TAR").build();
         when(fareRepository.findTopByOrderByFareCodeDesc()).thenReturn(Mono.just(last));
         when(fareRepository.existsByFareCode("TAR001")).thenReturn(Mono.just(false));
+        // Fix: Mock findAllByStatus to return empty Flux to avoid null pointer
+        when(fareRepository.findAllByStatus(anyString())).thenReturn(Flux.empty());
 
         FareCreateRequest request = FareCreateRequest.builder()
                 .organizationId("org-1")
@@ -343,6 +360,8 @@ public class FareServiceImplTest {
         Fare last = Fare.builder().fareCode("TARABC").build();
         when(fareRepository.findTopByOrderByFareCodeDesc()).thenReturn(Mono.just(last));
         when(fareRepository.existsByFareCode("TAR001")).thenReturn(Mono.just(false));
+        // Fix: Mock findAllByStatus to return empty Flux to avoid null pointer
+        when(fareRepository.findAllByStatus(anyString())).thenReturn(Flux.empty());
 
         FareCreateRequest request = FareCreateRequest.builder()
                 .organizationId("org-1")
@@ -369,6 +388,8 @@ public class FareServiceImplTest {
         Fare last = Fare.builder().fareCode("TARINVALID").build();
         when(fareRepository.findTopByOrderByFareCodeDesc()).thenReturn(Mono.just(last));
         when(fareRepository.existsByFareCode("TAR001")).thenReturn(Mono.just(false));
+        // Fix: Mock findAllByStatus to return empty Flux to avoid null pointer
+        when(fareRepository.findAllByStatus(anyString())).thenReturn(Flux.empty());
 
         FareCreateRequest request = FareCreateRequest.builder()
                 .organizationId("org-1")
@@ -396,6 +417,8 @@ public class FareServiceImplTest {
         Fare saved = Fare.builder().id(id).status(Constants.INACTIVE.name()).build();
 
         when(fareRepository.findById(id)).thenReturn(Mono.just(existing));
+        // Fix: Mock findAllByStatus to return empty Flux to avoid null pointer
+        when(fareRepository.findAllByStatus(anyString())).thenReturn(Flux.empty());
         when(fareRepository.save(any(Fare.class))).thenReturn(Mono.just(saved));
 
         StepVerifier.create(fareService.deactivateF(id))
@@ -408,7 +431,7 @@ public class FareServiceImplTest {
     // ============================================================
     @Test
     void getAllF_ShouldReturnItems() {
-        when(fareRepository.findAll()).thenReturn(reactor.core.publisher.Flux.just(
+        when(fareRepository.findAll()).thenReturn(Flux.just(
                 Fare.builder().id("1").build(),
                 Fare.builder().id("2").build()
         ));
@@ -420,7 +443,7 @@ public class FareServiceImplTest {
 
     @Test
     void getAllF_ShouldPropagateError() {
-        when(fareRepository.findAll()).thenReturn(reactor.core.publisher.Flux.error(new RuntimeException("DB error")));
+        when(fareRepository.findAll()).thenReturn(Flux.error(new RuntimeException("DB error")));
 
         StepVerifier.create(fareService.getAllF())
             .expectErrorMatches(e -> e.getMessage().contains("DB error"))
@@ -429,7 +452,7 @@ public class FareServiceImplTest {
 
     @Test
     void getAllActiveF_ShouldReturnItems() {
-        when(fareRepository.findAllByStatus(Constants.ACTIVE.name())).thenReturn(reactor.core.publisher.Flux.just(
+        when(fareRepository.findAllByStatus(Constants.ACTIVE.name())).thenReturn(Flux.just(
                 Fare.builder().id("1").status(Constants.ACTIVE.name()).build()
         ));
 
@@ -440,7 +463,7 @@ public class FareServiceImplTest {
 
     @Test
     void getAllInactiveF_ShouldReturnItems() {
-        when(fareRepository.findAllByStatus(Constants.INACTIVE.name())).thenReturn(reactor.core.publisher.Flux.just(
+        when(fareRepository.findAllByStatus(Constants.INACTIVE.name())).thenReturn(Flux.just(
                 Fare.builder().id("1").status(Constants.INACTIVE.name()).build()
         ));
 
@@ -455,7 +478,7 @@ public class FareServiceImplTest {
     @Test
     void getAllActiveF_ShouldPropagateError() {
         when(fareRepository.findAllByStatus(Constants.ACTIVE.name()))
-                .thenReturn(reactor.core.publisher.Flux.error(new RuntimeException("DB error active")));
+                .thenReturn(Flux.error(new RuntimeException("DB error active")));
 
         StepVerifier.create(fareService.getAllActiveF())
             .expectErrorMatches(e -> e.getMessage().contains("DB error active"))
@@ -465,7 +488,7 @@ public class FareServiceImplTest {
     @Test
     void getAllInactiveF_ShouldPropagateError() {
         when(fareRepository.findAllByStatus(Constants.INACTIVE.name()))
-                .thenReturn(reactor.core.publisher.Flux.error(new RuntimeException("DB error inactive")));
+                .thenReturn(Flux.error(new RuntimeException("DB error inactive")));
 
         StepVerifier.create(fareService.getAllInactiveF())
             .expectErrorMatches(e -> e.getMessage().contains("DB error inactive"))
@@ -515,6 +538,8 @@ public class FareServiceImplTest {
         // No hay tarifas previas → genera TAR001
         when(fareRepository.findTopByOrderByFareCodeDesc()).thenReturn(Mono.empty());
         when(fareRepository.existsByFareCode("TAR001")).thenReturn(Mono.just(false));
+        // Fix: Mock findAllByStatus to return empty Flux to avoid null pointer
+        when(fareRepository.findAllByStatus(anyString())).thenReturn(Flux.empty());
 
         // Captura de lo que se va a guardar
         ArgumentCaptor<Fare> fareCaptor = ArgumentCaptor.forClass(Fare.class);
@@ -592,6 +617,8 @@ public class FareServiceImplTest {
         // Simula que TAR001 ya existe
         when(fareRepository.findTopByOrderByFareCodeDesc()).thenReturn(Mono.empty());
         when(fareRepository.existsByFareCode("TAR001")).thenReturn(Mono.just(true));
+        // Fix: Mock findAllByStatus to return empty Flux to avoid null pointer
+        when(fareRepository.findAllByStatus(anyString())).thenReturn(Flux.empty());
 
         // Act & Assert
         StepVerifier.create(fareService.saveF(request))

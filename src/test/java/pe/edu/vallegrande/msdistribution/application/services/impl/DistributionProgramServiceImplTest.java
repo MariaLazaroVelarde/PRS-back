@@ -118,6 +118,8 @@ public class DistributionProgramServiceImplTest {
                 .createdAt(java.time.Instant.now())
                 .build();
         
+        // Fix: Mock findTopByOrderByProgramCodeDesc to avoid null pointer
+        when(programRepository.findTopByOrderByProgramCodeDesc()).thenReturn(Mono.empty());
         when(programRepository.save(any(DistributionProgram.class))).thenReturn(Mono.just(program));
 
         // Act & Assert
@@ -304,6 +306,8 @@ public class DistributionProgramServiceImplTest {
                 .observations("Test observation")
                 .build();
 
+        // Fix: Mock findTopByOrderByProgramCodeDesc to avoid null pointer
+        when(programRepository.findTopByOrderByProgramCodeDesc()).thenReturn(Mono.empty());
         // Simulamos un fallo en la base de datos
         when(programRepository.save(ArgumentMatchers.any(DistributionProgram.class)))
                 .thenReturn(Mono.error(new RuntimeException("Database error")));

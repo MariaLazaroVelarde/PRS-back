@@ -167,14 +167,7 @@ public class AdminRest {
         // @Operation(summary = "Delete a distribution program")
         public Mono<ResponseDto<Void>> deleteProgram(@PathVariable String id) {
                 return programService.delete(id)
-                        .then(Mono.just(new ResponseDto<Void>(true, null, null)));
-        }
-
-        @DeleteMapping("/program/physical/{id}")
-        @Operation(summary = "Physically delete a distribution program")
-        public Mono<ResponseDto<Void>> physicalDeleteProgram(@PathVariable String id) {
-                return programService.physicalDelete(id)
-                        .then(Mono.just(new ResponseDto<Void>(true, null, null)));
+                                .then(Mono.just(new ResponseDto<Void>(true, null, null)));
         }
 
         @PatchMapping("/program/activate/{id}")
@@ -368,28 +361,28 @@ public class AdminRest {
                                                 .body(new ResponseDto<DistributionScheduleResponse>(true, data, null)));
         }
 
-@PutMapping("/schedule/{id}")
-// @Operation(summary = "Update a distribution schedule")
-public Mono<ResponseDto<DistributionScheduleResponse>> updateSchedule(@PathVariable String id,
-                @RequestBody DistributionScheduleCreateRequest request) {
-        log.debug("Received update request for schedule id: {} with data: {}", id, request);
-        
-        return scheduleService.update(id, request)
-                        .map(data -> {
-                            log.debug("Schedule updated successfully: {}", data);
-                            return new ResponseDto<DistributionScheduleResponse>(true, data, null);
-                        })
-                        .switchIfEmpty(Mono.error(CustomException.notFound("DistributionSchedule", id)))
-                        .onErrorResume(throwable -> {
-                                // Log the error for debugging
-                                log.error("Error updating schedule with id: " + id, throwable);
-                                // Return a proper error response
-                                String errorMessage = "Error al actualizar el horario: " + 
-                                    (throwable.getMessage() != null ? throwable.getMessage() : "Error interno del servidor");
-                                return Mono.just(new ResponseDto<DistributionScheduleResponse>(false, null, 
-                                        new ErrorMessage(500, errorMessage, throwable.getClass().getSimpleName())));
-                        });
-}
+        @PutMapping("/schedule/{id}")
+        // @Operation(summary = "Update a distribution schedule")
+        public Mono<ResponseDto<DistributionScheduleResponse>> updateSchedule(@PathVariable String id,
+                        @RequestBody DistributionScheduleCreateRequest request) {
+                log.debug("Received update request for schedule id: {} with data: {}", id, request);
+                
+                return scheduleService.update(id, request)
+                                .map(data -> {
+                                log.debug("Schedule updated successfully: {}", data);
+                                return new ResponseDto<DistributionScheduleResponse>(true, data, null);
+                                })
+                                .switchIfEmpty(Mono.error(CustomException.notFound("DistributionSchedule", id)))
+                                .onErrorResume(throwable -> {
+                                        // Log the error for debugging
+                                        log.error("Error updating schedule with id: " + id, throwable);
+                                        // Return a proper error response
+                                        String errorMessage = "Error al actualizar el horario: " + 
+                                        (throwable.getMessage() != null ? throwable.getMessage() : "Error interno del servidor");
+                                        return Mono.just(new ResponseDto<DistributionScheduleResponse>(false, null, 
+                                                new ErrorMessage(500, errorMessage, throwable.getClass().getSimpleName())));
+                                });
+        }
 
         @DeleteMapping("/schedule/{id}")
         // @Operation(summary = "Delete a distribution schedule")
