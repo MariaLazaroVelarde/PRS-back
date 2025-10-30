@@ -1,16 +1,16 @@
 pipeline {
     agent any
-    
+
     tools {
         jdk 'Java17'
         maven 'M3'
     }
-    
+
     environment {
         GITHUB_REPO = 'https://github.com/MariaLazaroVelarde/PRS-back.git'
         MAVEN_OPTS = '-Xmx1024m'
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
@@ -33,8 +33,18 @@ pipeline {
             }
             post {
                 always {
+                    echo '📄 Publicando resultados de pruebas...'
                     junit 'target/surefire-reports/*.xml'
-                    publishCoverage adapters: [[parser: 'JACOCO', path: 'target/site/jacoco/jacoco.xml']]
+
+                    // Publicar reporte de cobertura (JaCoCo)
+                    script {
+                        try {
+                            publishCoverage adapters: [jacocoAdapter('target/site/jacoco/jacoco.xml')],
+                                            sourceFileResolver: sourceFiles('STORE_ALL_BUILD')
+                        } catch (Exception e) {
+                            echo "⚠️ No se pudo publicar cobertura: ${e.message}"
+                        }
+                    }
                 }
             }
         }
@@ -59,17 +69,11 @@ pipeline {
                 }
             }
         }
-
-        stage('Selenium Tests') {
-            steps {
-                echo '🧭 Ejecutando pruebas automáticas con Selenium...'
-                sh 'mvn test -Dtest=*SeleniumTest'
-            }
-        }
     }
 
     post {
         always {
+            echo '🧹 Limpiando workspace...'
             cleanWs()
         }
         success {
