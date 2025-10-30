@@ -81,7 +81,7 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
-    <!-- DEPENDENCIA DE SEGURIDAD -->
+        <!-- DEPENDENCIA DE SEGURIDAD -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -131,7 +131,7 @@
             <version>5.11.0</version>
             <scope>test</scope>
         </dependency>
-        <dependencies>
+    <dependencies>
         <!-- Reactor Core y Test -->
         <dependency>
             <groupId>io.projectreactor</groupId>
