@@ -65,9 +65,8 @@ pipeline {
 
         stage('Code Analysis') {
             steps {
-                echo '🔍 Analizando calidad de código con SonarQube...'
                 withSonarQubeEnv('MySonarQubeServer') {
-                    sh 'mvn sonar:sonar'
+                    sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=PRS-Back -Dsonar.organization=maria-lazaro -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN'
                 }
             }
         }
