@@ -81,7 +81,7 @@ pipeline {
         success {
             echo '✅ Pipeline ejecutado con éxito!'
             slackSend(
-                channel: '#jenkins-alerts',
+                channel: '#prs-revisión',
                 color: 'good',
                 message: """
                 ✅ *BUILD EXITOSO*
@@ -94,7 +94,7 @@ pipeline {
         failure {
             echo '❌ Pipeline falló!'
             slackSend(
-                channel: '#jenkins-alerts',
+                channel: '#prs-revisión',
                 color: 'danger',
                 message: """
                 ❌ *BUILD FALLIDO*
